@@ -12,9 +12,15 @@
   --font-mono: var(--font-geist-mono);
 }
 
+.hero-gradient {
+  /* Define um fundo gradiente azul que combina com a paleta "sky" */
+  background-color: #38bdf8; /* sky-400, como um fallback */
+  background-image: linear-gradient(135deg, #50c6f8 0%, #3b82f6 100%); /* Gradiente de sky-400 para blue-500 */
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #e0e0e0;
     --foreground: #ededed;
   }
 }
