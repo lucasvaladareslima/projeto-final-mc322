@@ -1,0 +1,19 @@
+# Ambiente Virtual
+venv/
+
+# Arquivos de ambiente
+.env
+
+# Banco de dados local
+db.sqlite3
+*.sqlite3
+
+# Cache e arquivos compilados do Python
+__pycache__/
+*.pyc
+
+# Pasta de arquivos de mídia enviados por usuários
+/media/
+
+# Pasta de arquivos estáticos coletados
+/static/
