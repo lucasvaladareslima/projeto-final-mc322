@@ -30,3 +30,23 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Adicione estas classes ao final de src/app/globals.css */
+
+
+
+.btn-primary-dark {
+  @apply bg-blue-700 text-white hover:bg-blue-800 focus:ring-blue-500;
+}
+
+.table-header {
+  @apply bg-blue-100 text-blue-800 font-semibold;
+}
+
+.table-cell {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-700;
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-lg p-6;
+}
