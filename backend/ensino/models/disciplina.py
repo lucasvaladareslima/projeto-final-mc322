@@ -95,4 +95,3 @@ class Turma(models.Model):
     class Meta:
         verbose_name = 'Turma'
         verbose_name_plural = 'Turmas'
-
