@@ -6,8 +6,8 @@ import Link from 'next/link';
 
 export default function LoginPage() {
   return (
-    <main className="text-black flex flex-1 flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8 rounded-xl bg-sky-500 p-8 shadow-xl">
+    <main className="text-black flex bg-sky-50 flex-1 flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-8 rounded-xl bg-white p-8 shadow-xl">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-[var(--text-color)]">
             Bem-vindo de volta
@@ -56,7 +56,7 @@ export default function LoginPage() {
           <div>
             <button
               type="submit"
-              className="btn-primary group relative flex w-full justify-center rounded-md border border-black py-3 px-4 text-sm font-medium text-black bg-sky-200"
+              className="w-full rounded-lg bg-sky-600 px-5 py-3 text-sm font-medium text-white hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
             >
               Entrar
             </button>
