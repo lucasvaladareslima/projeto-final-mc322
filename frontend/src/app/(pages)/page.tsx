@@ -14,7 +14,7 @@ const materias = [
 export default function HomePage() {
   return (
     <>
-      <Header />
+
       <main className="flex-grow">
         {/* Seção Hero */}
         <section className="hero-gradient py-20">
@@ -61,7 +61,6 @@ export default function HomePage() {
         {/* Adicionei as outras seções aqui para simplificar, mas elas também poderiam ser componentes! */}
 
       </main>
-      <Footer />
     </>
   );
 }

@@ -19,7 +19,6 @@ const computerScienceSubjects: Subject[] = [
 export default function ComputacaoPage() {
   return (
     <>
-      <Header />
       <div className="container mx-auto p-4 sm:p-8">
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-sky-700">Matérias do Instituto de Computação</h1>
@@ -27,7 +26,6 @@ export default function ComputacaoPage() {
         </header>
         <SubjectTable subjects={computerScienceSubjects} />
       </div>
-      <Footer />
     </>
   );
 }

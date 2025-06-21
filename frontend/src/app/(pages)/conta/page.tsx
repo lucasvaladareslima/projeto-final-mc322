@@ -17,7 +17,6 @@ const pendingTasksData: Task[] = [
 export default function AccountPage() {
   return (
     <>
-      <Header />
       <div className="container mx-auto p-4 md:p-8">
         {/* Header específico da página */}
         <header className="flex justify-between items-center mb-10">
@@ -25,23 +24,34 @@ export default function AccountPage() {
         </header>
 
         {/* Links para outras seções */}
-        <div className="flex flex-col items-center mb-10 space-y-6">
-          <Link href="/conta/disciplinas-atuais" className="py-5 px-10 btn bg-blue-600 text-white border border-blue-700 hover:bg-blue-700 w-full max-w-md text-center">
-            <span className="material-icons mr-2 align-middle">school</span>
-            Disciplinas Atuais
-          </Link>
-          <Link href="/conta/disciplinas-passadas" className="py-5 px-10 btn bg-blue-600 text-white border border-blue-700 hover:bg-blue-700 focus:ring-blue-400 w-full max-w-md text-center">
-            <span className="material-icons mr-2 align-middle">history</span>
-            Disciplinas Passadas
-          </Link>
-        </div>
+        {/* O container agora alinha em linha e centraliza o grupo de botões */}
+<div className="flex flex-row justify-center items-center mb-10 gap-6">
+
+  {/* O botão/link não tem mais w-full, então seu tamanho é natural */}
+  <Link 
+    href="/conta/disciplinas-atuais" 
+    className="btn btn-primary-dark text-center rounded-full py-5 px-12 text-2xl"
+  >
+    <span className="material-icons mr-2 align-middle">school</span>
+    Disciplinas Atuais
+  </Link>
+
+  {/* O segundo botão/link segue o mesmo padrão */}
+  <Link 
+    href="/conta/disciplinas-passadas" 
+    className="btn btn-primary-dark text-center rounded-full py-5 px-12 text-2xl"
+  >
+    <span className="material-icons mr-2 align-middle">history</span>
+    Disciplinas Passadas
+  </Link>
+
+</div>
 
         {/* Tarefas pendentes */}
         <div className="grid grid-cols-1">
           <PendingTasksCard tasks={pendingTasksData} />
         </div>
       </div>
-      <Footer />
     </>
   );
 }
