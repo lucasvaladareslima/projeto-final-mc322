@@ -1,6 +1,8 @@
 from django.db import models
 from usuarios.models import Usuario
 from ensino.models.disciplina import Disciplina
+from ensino.models.periodo_letivo import PeriodoLetivo
+
 
 
 class Turma(models.Model):  
@@ -11,6 +13,11 @@ class Turma(models.Model):
     """
 
     nome = models.CharField(max_length=100, unique=True)
+    periodo_letivo = models.ForeignKey(
+        PeriodoLetivo, 
+        on_delete=models.CASCADE, 
+        related_name='turmasPeriodoLetivo',
+    )
 
     disciplina = models.ForeignKey(
         Disciplina, 
