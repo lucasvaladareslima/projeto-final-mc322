@@ -56,3 +56,11 @@ export interface Classroom {
   tasks: Task[];
   notices: Notice[];
 }
+
+export interface ForumMessage {
+  title: string;
+  content: string;
+  author: string;
+  timestamp: string;
+  // replies: ForumMessage[];
+}
