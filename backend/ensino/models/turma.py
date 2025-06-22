@@ -82,6 +82,8 @@ class Turma(models.Model):
         
         self.monitores.add(monitor)
 
+    def __str__(self):
+        return f"{self.disciplina.codigo} - {self.nome} ({self.periodo_letivo})"
 
     class Meta:
         verbose_name = 'Turma'

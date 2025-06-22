@@ -23,6 +23,9 @@ class PeriodoLetivo(models.Model):
         
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f"{self.ano} - {self.get_semestre_display()}"
+
     class Meta:
         verbose_name = 'Período Letivo'
         verbose_name_plural = 'Períodos Letivos'

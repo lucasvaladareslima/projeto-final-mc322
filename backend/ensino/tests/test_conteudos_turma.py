@@ -3,6 +3,7 @@ from usuarios.models import Professor  # ou o nome correto da classe
 from ensino.models.turma import Turma
 from ensino.models.disciplina import Disciplina
 from ensino.models.conteudo_turma import Material, Tarefa, Anuncio
+from ensino.models.periodo_letivo import PeriodoLetivo
 from django.utils import timezone
 
 class PostModelsTest(TestCase):
@@ -21,9 +22,14 @@ class PostModelsTest(TestCase):
             descricao='Disciplina de Matemática Básica'
         )
 
+
         # Criar a turma com o professor obrigatório
         self.turma = Turma.objects.create(
             nome='Turma Teste',
+            periodo_letivo= PeriodoLetivo.objects.create(
+                ano=2025,
+                semestre=1,
+            ),
             disciplina=self.disciplina, 
             professor=self.professor,  
         )

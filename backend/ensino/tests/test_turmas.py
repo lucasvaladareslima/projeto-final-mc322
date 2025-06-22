@@ -1,6 +1,7 @@
 from django.test import TestCase
 from ensino.models import Disciplina, Turma
 from usuarios.models import Usuario
+from ensino.models.periodo_letivo import PeriodoLetivo
 
 class TurmaModelTest(TestCase):
     def setUp(self):
@@ -34,6 +35,7 @@ class TurmaModelTest(TestCase):
         # Cria uma turma
         self.turma = Turma.objects.create(
             nome='Turma A',
+            periodo_letivo=PeriodoLetivo.objects.create(ano=2025, semestre=1),
             disciplina=self.disciplina,
             professor=self.professor
         )

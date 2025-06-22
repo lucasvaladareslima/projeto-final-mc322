@@ -25,6 +25,9 @@ class Post(PolymorphicModel):
     
     data_criacao = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.titulo} - {self.autor.username} ({self.turma.nome})"
+
     class Meta:
         abstract = False # Não é modelo abstrato, pois será usado como base para outros modelos de post.(polymorfismo)
 
@@ -43,9 +46,13 @@ class Material(Post):
             raise ValueError("O arquivo do material não pode ser vazio.")
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f"Material: {self.titulo} - {self.autor.username} ({self.turma.nome})"
+
     class Meta:
         verbose_name = 'Material'
         verbose_name_plural = 'Materiais'
+
 
 class Tarefa(Post):
     """
@@ -55,15 +62,32 @@ class Tarefa(Post):
     """
 
     data_entrega = models.DateTimeField()
+    nota = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        blank=True, 
+        null=True,
+        help_text="Nota da tarefa, se aplicável."
+    )
+    nota_maxima = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        default=10.0,
+        help_text="Nota máxima da tarefa."
+    )
 
     def save(self, *args, **kwargs):
         if not self.data_entrega:
             raise ValueError("A data de entrega da tarefa não pode ser vazia.")
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f"Tarefa: {self.titulo} - {self.autor.username} ({self.turma.nome})"
+
     class Meta:
         verbose_name = 'Tarefa'
         verbose_name_plural = 'Tarefas'
+
 
 class Anuncio(Post):
     """
@@ -76,6 +100,9 @@ class Anuncio(Post):
         if not self.titulo or not self.conteudo:
             raise ValueError("O título e o conteúdo do anúncio não podem ser vazios.")
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Anúncio: {self.titulo} - {self.autor.username} ({self.turma.nome})"
 
     class Meta:
         verbose_name = 'Anúncio'
