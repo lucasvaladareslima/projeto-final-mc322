@@ -7,7 +7,7 @@ const Header = () => {
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         <Link href="/" className="flex items-center">
           <span className="material-icons text-sky-600 text-3xl mr-2">school</span>
-          <h1 className="text-2xl font-bold text-sky-700">UniMateriais</h1>
+          <h1 className="text-2xl font-bold text-sky-700">UniComp</h1>
         </Link>
         <nav className="flex items-center space-x-6">
           <Link href="/disciplinas" className="text-gray-600 hover:text-sky-600 transition-colors duration-300 flex items-center">

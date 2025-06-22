@@ -12,6 +12,31 @@ export interface Task {
   dueDate: string;
 }
 
+export interface DisciplineButtonProps {
+  icon: string;
+  label: string;
+  href: string;
+}
+
+// Dentro de src/types/index.ts
+
+export interface CurrentSubject {
+  id: string; // Um ID único para usar como chave e no link
+  name: string;
+  code: string;
+  class: string; // Turma
+  credits: number;
+  professor: string;
+}
+
+export interface PastSubject {
+  code: string;
+  name: string;
+  semester: string; // Ex: "2024/2"
+  grade: number; // Nota final
+  credits: number;
+}
+
 export interface Material {
   title: string;
   url: string;
