@@ -58,6 +58,20 @@ def login_view(request):
             {"error": "Credenciais inválidas."},
             status=status.HTTP_401_UNAUTHORIZED
         )
+    
+@api_view(['GET'])
+# A permissão já é garantida pelo padrão em settings.py,
+# mas ser explícito aqui ajuda na clareza.
+@permission_classes([IsAuthenticated])
+def me_view(request):
+    """
+    Retorna os dados do usuário atualmente autenticado.
+    """
+    # O Django e o DRF, ao verem o cookie de sessão, já preencheram
+    # o 'request.user' com o objeto do usuário logado.
+    serializer = UsuarioSerializer(request.user)
+    return Response(serializer.data)
+
 
 
 @api_view(['POST'])
