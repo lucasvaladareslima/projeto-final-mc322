@@ -1,7 +1,6 @@
 import React from 'react';
-import type { Subject } from '@/types/index'; // Importando nosso tipo
+import type { Subject } from '@/types/index';
 
-// O componente da tabela recebe a lista de matérias como uma prop
 const SubjectTable: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
   return (
     <div className="bg-white shadow-xl rounded-lg overflow-hidden">
@@ -19,12 +18,13 @@ const SubjectTable: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
             </tr>
           </thead>
           <tbody className="text-gray-700">
-            {/* AQUI ESTÁ A MÁGICA: Usamos .map() para criar uma linha para cada matéria */}
-            {subjects.map((subject) => (
-              <tr key={subject.code} className="border-b border-sky-100 hover:bg-sky-50 transition-colors duration-150">
-                <td className="py-4 px-6">{subject.code} - {subject.name}</td>
-                <td className="py-4 px-6">{subject.credits}</td>
-                <td className="py-4 px-6">{subject.prerequisites}</td>
+            {subjects.map((subject, index) => (
+              <tr
+                key={subject.id || subject.codigo || index}  // Ideal é subject.id, depois subject.codigo, se não existir, o index
+                className="border-b border-sky-100 hover:bg-sky-50 transition-colors duration-150"
+              >
+                <td className="py-4 px-6">{subject.codigo} - {subject.nome}</td>
+                <td className="py-4 px-6">{subject.creditos}</td>
               </tr>
             ))}
           </tbody>

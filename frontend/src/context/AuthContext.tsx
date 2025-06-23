@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const userData: User = await response.json();
     
-    userData?.type === 'PROFESSOR' ? router.push('/conta/professor') : router.push('/conta');
+    router.push('/conta');
     
   };
   
