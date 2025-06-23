@@ -62,7 +62,7 @@ class EntregaTarefaCreateView(CreateAPIView):
         serializer.save(aluno=self.request.user)
 
 class TarefasPendentesListView(ListAPIView):
-    serializer_class = EntregaTarefaSerializer
+    serializer_class = TarefaSerializer
 
     def get_queryset(self):
         """Obtém as entregas de tarefas pendentes do usuário autenticado.
