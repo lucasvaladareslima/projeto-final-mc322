@@ -12,7 +12,7 @@ from rest_framework_nested import routers
 
 from ensino.views.turma_view import TurmaCreateView, TurmaListView, TurmasAlunoListView
 from ensino.views.disciplina_view import DisciplinaListView, DisciplinaCreateView
-from ensino.views.conteudo_turma_view import PublicacaoListView, MaterialCreateView, TarefaCreateView, AnuncioCreateView, EntregaTarefaCreateView, TarefasPendentesListView 
+from ensino.views.conteudo_turma_view import PublicacaoListView, MaterialCreateView, TarefaCreateView, AnuncioCreateView, EntregaTarefaCreateView, TarefasPendentesListView
 from ensino.views.periodo_letivo_view import PeriodoLetivoListView, PeriodoLetivoCreateView
 
 from ensino.views.forum_view import ForumViewSet, PostViewSet, ComentarioViewSet, TagViewSet
