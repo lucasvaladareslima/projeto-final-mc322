@@ -10,7 +10,7 @@ class TurmaModelTest(TestCase):
 
         # Cria um professor
         self.professor = Usuario.objects.create_user(
-            username='professor1',
+            name='professor1',
             email='prof1@example.com',
             password='senha123',
             type=Usuario.UserType.PROFESSOR
@@ -18,7 +18,7 @@ class TurmaModelTest(TestCase):
 
         # Cria um aluno
         self.aluno = Usuario.objects.create_user(
-            username='aluno1',
+            name='aluno1',
             email='aluno1@example.com',
             password='senha123',
             type=Usuario.UserType.ALUNO
@@ -26,7 +26,7 @@ class TurmaModelTest(TestCase):
 
         # Cria um monitor
         self.monitor = Usuario.objects.create_user(
-            username='monitor1',
+            name='monitor1',
             email='monitor1@example.com',
             password='senha123',
             type=Usuario.UserType.ALUNO

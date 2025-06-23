@@ -2,26 +2,31 @@ import React from 'react';
 import SubjectTable from '@/components/SubjectTable';
 import type { Subject } from '@/types';
 
-// 1. CRIAMOS A FUNÇÃO DE BUSCA ESPECÍFICA PARA AS DISCIPLINAS DE MC
 async function getMcSubjects(): Promise<Subject[]> {
   try {
-    // 2. FAZEMOS A CHAMADA PARA O ENDPOINT COM O FILTRO
-    // Note o '?department=MC' no final da URL para filtrar os resultados
-    const response = await fetch(`${process.env.API_BASE_URL}/subjects?department=MC`, {
-      next: {
-        revalidate: 3600, // Otimização: guarda o resultado em cache por 1 hora
-      },
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/ensino/disciplina/?codigo=MC`;
+    const response = await fetch(url, {
+      next: { revalidate: 10 },
     });
 
     if (!response.ok) {
+      const text = await response.text();
+      console.error(`Erro na resposta da API: ${response.status} - ${text}`);
       throw new Error('Falha ao buscar as disciplinas de Computação');
     }
 
-    return response.json();
+    // Aqui: tente ler o texto e logar antes do JSON.parse para debug
+    const text = await response.text();
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      console.error('Erro ao fazer parse do JSON:', e, 'Resposta recebida:', text);
+      return [];
+    }
 
   } catch (error) {
-    console.error("Erro na busca de dados:", error);
-    return []; // Retorna um array vazio em caso de erro
+    console.error("Erro na busca de disciplinas:", error);
+    return [];
   }
 }
 

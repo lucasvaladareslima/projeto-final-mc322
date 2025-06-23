@@ -1,8 +1,9 @@
 export interface Subject {
-  code: string;
-  name: string;
-  credits: number;
-  prerequisites: string;
+  id: number;
+  codigo: string;
+  nome: string;
+  descricao: string;
+  creditos: number;
 }
 
 export interface Task {

@@ -15,25 +15,25 @@ class ForumModelsTest(TestCase):
         """
         # Cria usuários com diferentes papéis
         self.professor = Usuario.objects.create_user(
-            username='professor1',
+            name='professor1',
             email='prof1@example.com',
             password='senha123',
             type=Usuario.UserType.PROFESSOR
         )
         self.aluno = Usuario.objects.create_user(
-            username='aluno1',
+            name='aluno1',
             email='aluno1@example.com',
             password='senha123',
             type=Usuario.UserType.ALUNO
         )
         self.monitor = Usuario.objects.create_user(
-            username='monitor1',
+            name='monitor1',
             email='monitor1@example.com',
             password='senha123',
             type=Usuario.UserType.ALUNO
         )
         self.usuario_externo = Usuario.objects.create_user(
-            username='Externo Fórum',
+            name='Externo Fórum',
             email='Externo@example.com',
             password='senha123',
             type=Usuario.UserType.ALUNO

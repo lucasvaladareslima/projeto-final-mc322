@@ -10,7 +10,7 @@ class PostModelsTest(TestCase):
     def setUp(self):
         # Criar professor para associar à turma
         self.professor = Professor.objects.create_user(
-            username='professor1',
+            name='professor1',
             password='senha123',
             email='professor1@example.com',
         )
