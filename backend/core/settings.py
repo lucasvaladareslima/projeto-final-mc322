@@ -156,3 +156,15 @@ CORS_ALLOWED_ORIGINS = [
 # Para o nosso sistema de login com cookies funcionar, precisamos disto.
 # Permite que o navegador envie o cookie de sessão junto com o pedido.
 CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    # "https://seu-dominio.com"
+]
+
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+
+CSRF_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SAMESITE = "None"
