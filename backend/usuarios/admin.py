@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Usuario, Aluno, Professor, Monitor
+from .models import Usuario, Aluno, Professor
 
 # Para exibir os campos customizados no admin
 class CustomUserAdmin(UserAdmin):
@@ -21,4 +21,3 @@ admin.site.register(Usuario, CustomUserAdmin)
 # mas aparecerão como seções separadas no admin.
 admin.site.register(Aluno)
 admin.site.register(Professor)
-admin.site.register(Monitor)

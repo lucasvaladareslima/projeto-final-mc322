@@ -1,6 +1,6 @@
 # backend/usuarios/tests.py
 from django.test import TestCase
-from .models import Usuario, Aluno, Professor, Monitor
+from .models import Usuario, Aluno, Professor
 
 class UsuarioModelTest(TestCase):
     """

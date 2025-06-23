@@ -3,7 +3,7 @@ from django.db import models
 from usuarios.models import Usuario
 from ensino.models.turma import Turma
 
-class Post(PolymorphicModel):
+class Publicacao(PolymorphicModel):
     """
     Modelo que representa um post no sistema.
 
@@ -15,12 +15,12 @@ class Post(PolymorphicModel):
     autor = models.ForeignKey(
         Usuario,
         on_delete=models.CASCADE,
-        related_name='posts'
+        related_name='publicacoes'
     )
     turma = models.ForeignKey(
         Turma,
         on_delete=models.CASCADE,
-        related_name='posts',
+        related_name='publicacoes',
     )
     
     data_criacao = models.DateTimeField(auto_now_add=True)
@@ -32,7 +32,7 @@ class Post(PolymorphicModel):
         abstract = False # Não é modelo abstrato, pois será usado como base para outros modelos de post.(polymorfismo)
 
 
-class Material(Post):
+class Material(Publicacao):
     """
     Modelo que representa um material postado em uma turma.
 
@@ -54,7 +54,7 @@ class Material(Post):
         verbose_name_plural = 'Materiais'
 
 
-class Tarefa(Post):
+class Tarefa(Publicacao):
     """
     Modelo que representa uma tarefa postada em uma turma.
 
@@ -89,7 +89,7 @@ class Tarefa(Post):
         verbose_name_plural = 'Tarefas'
 
 
-class Anuncio(Post):
+class Anuncio(Publicacao):
     """
     Modelo que representa um anúncio postado em uma turma.
 
