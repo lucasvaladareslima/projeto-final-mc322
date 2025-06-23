@@ -11,6 +11,7 @@ class Disciplina(models.Model):
     nome = models.CharField(max_length=100, unique=True)
     codigo = models.CharField(max_length=20, unique=True, blank=True, null=True)
     descricao = models.TextField(blank=True, null=True)
+    creditos = models.PositiveIntegerField(default=0)
 
     def save(self, *args, **kwargs):
         if not self.nome:

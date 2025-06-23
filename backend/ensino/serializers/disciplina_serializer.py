@@ -4,4 +4,4 @@ from ensino.models.disciplina import Disciplina
 class DisciplinaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Disciplina
-        fields = ['id', 'codigo', 'nome', 'descricao'] 
+        fields = ['id', 'codigo', 'nome', 'descricao', 'creditos'] 

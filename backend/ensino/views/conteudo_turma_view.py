@@ -1,6 +1,7 @@
 from rest_framework.generics import ListAPIView, CreateAPIView
-from ensino.models.conteudo_turma import Publicacao, Material, Tarefa, Anuncio
-from ensino.serializers.conteudo_turma_serializer import PublicacaoBaseSerializer, MaterialSerializer, TarefaSerializer, AnuncioSerializer
+from ensino.models.conteudo_turma import Publicacao, Material, Tarefa, Anuncio, EntregaTarefa
+from ensino.serializers.conteudo_turma_serializer import PublicacaoBaseSerializer, MaterialSerializer, TarefaSerializer, AnuncioSerializer, EntregaTarefaSerializer
+from django.utils import timezone
 
 class PublicacaoListView(ListAPIView):
     serializer_class = PublicacaoBaseSerializer
@@ -31,31 +32,47 @@ class PublicacaoListView(ListAPIView):
                 queryset = Anuncio.objects.all()
         return queryset
     
-class PublicacaoCreateView(CreateAPIView):
-    """View para criar uma nova publicação."""
-    
-    def get_serializer_class(self):
-        """Obtém o serializer apropriado com base no tipo de publicação.
-        Permite criar publicações de diferentes tipos (material, tarefa, anuncio).
-        Args:
-            request: Objeto de requisição HTTP que contém:
-                - type (str): Tipo de publicação a ser criada (material, tarefa, anuncio).
-        Returns:
-            Serializer: Classe do serializer apropriado para o tipo de publicação."""
-
-        tipo = self.request.data.get('type', '').lower()
-        if tipo == 'material':
-            return MaterialSerializer
-        elif tipo == 'tarefa':
-            return TarefaSerializer
-        elif tipo == 'anuncio':
-            return AnuncioSerializer
-        else:
-            raise ValueError('Tipo inválido de publicação (material, tarefa, anuncio).')
+class MaterialCreateView(CreateAPIView):
+    serializer_class = MaterialSerializer
 
     def perform_create(self, serializer):
-        """Salva a nova publicação com os dados fornecidos.
-        Args:
-            serializer: Instância do serializer com os dados da nova publicação.
+        """Salva o material com o usuário autenticado como autor."""
+        serializer.save(autor=self.request.user)
+
+class TarefaCreateView(CreateAPIView):
+    serializer_class = TarefaSerializer
+
+    def perform_create(self, serializer):
+        """Salva a tarefa com o usuário autenticado como autor."""
+        serializer.save(autor=self.request.user)
+
+class AnuncioCreateView(CreateAPIView):
+    serializer_class = AnuncioSerializer
+
+    def perform_create(self, serializer):
+        """Salva o anúncio com o usuário autenticado como autor."""
+        serializer.save(autor=self.request.user)
+
+
+class EntregaTarefaCreateView(CreateAPIView):
+    serializer_class = EntregaTarefaSerializer
+
+    def perform_create(self, serializer):
+        """Salva a entrega de tarefa com o usuário autenticado como aluno."""
+        serializer.save(aluno=self.request.user)
+
+class TarefasPendentesListView(ListAPIView):
+    serializer_class = EntregaTarefaSerializer
+
+    def get_queryset(self):
+        """Obtém as entregas de tarefas pendentes do usuário autenticado.
+        
+        Filtra as entregas de tarefas onde o status é 'pendente' e o aluno é o usuário autenticado.
+        
+        Returns:
+            QuerySet: Lista de entregas de tarefas pendentes do usuário autenticado.
         """
-        serializer.save()
+        aluno = self.request.user
+        tarefas_em_prazo = Tarefa.objects.filter(data_entrega__gte=timezone.now())
+        tarefas_pendentes = tarefas_em_prazo.exclude(entregas__aluno=aluno)
+        return tarefas_pendentes
