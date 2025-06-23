@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # Nossos apps
     'usuarios',
     'ensino',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -125,3 +126,15 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'usuarios.Usuario'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # Usa o sistema de login por sessão do Django.
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        # Por padrão, exige que o usuário esteja autenticado,
+        # a menos que uma view especifique o contrário.
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
