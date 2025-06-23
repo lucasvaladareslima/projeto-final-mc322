@@ -2,17 +2,33 @@ import React from 'react';
 import PastSubjectsTable from '@/components/PastSubjectTable';
 import type { PastSubject } from '@/types';
 
-// Nossos dados de exemplo
-const pastSubjectsData: PastSubject[] = [
-  { code: 'MC102', name: 'Algoritmos e Programação', semester: '2024/1', grade: 9.5, credits: 4 },
-  { code: 'MA111', name: 'Cálculo I', semester: '2024/1', grade: 7.0, credits: 6 },
-  { code: 'F_128', name: 'Física I', semester: '2024/1', grade: 8.0, credits: 4 },
-  { code: 'MC202', name: 'Estruturas de Dados', semester: '2024/2', grade: 10.0, credits: 4 },
-  { code: 'MA311', name: 'Cálculo III', semester: '2024/2', grade: 7.5, credits: 6 },
-  { code: 'EA513', name: 'Circuitos Elétricos', semester: '2024/2', grade: 4.9, credits: 4 },
-];
+// 1. CRIAMOS A FUNÇÃO PARA BUSCAR OS DADOS DA API
+async function getPastSubjects(): Promise<PastSubject[]> {
+  try {
+    // 2. FAZEMOS A CHAMADA PARA O ENDPOINT ESPECÍFICO DE DISCIPLINAS PASSADAS
+    // Lembre-se de verificar se a rota é '/subjects/past' ou outra no seu backend!
+    const response = await fetch(`${process.env.API_BASE_URL}/subjects/past`, {
+      cache: 'no-store', // Garante que os dados sejam sempre os mais recentes
+    });
 
-export default function DisciplinasPassadasPage() {
+    if (!response.ok) {
+      throw new Error('Falha ao buscar o histórico de disciplinas');
+    }
+
+    return response.json();
+
+  } catch (error) {
+    console.error("Erro na busca de dados:", error);
+    return []; // Retorna um array vazio em caso de erro
+  }
+}
+
+// 3. A PÁGINA SE TORNA UM COMPONENTE ASSÍNCRONO
+export default async function DisciplinasPassadasPage() {
+  
+  // 4. CHAMAMOS A FUNÇÃO E ESPERAMOS OS DADOS VINDOS DO BACKEND
+  const subjects = await getPastSubjects();
+
   return (
     <div className="container mx-auto p-4 md:p-8">
       <header className="mb-10">
@@ -20,8 +36,14 @@ export default function DisciplinasPassadasPage() {
         <p className="text-lg text-gray-600 mt-1">Todas as disciplinas cursadas e suas notas finais.</p>
       </header>
 
-      {/* Usando nosso componente de tabela e passando os dados para ele */}
-      <PastSubjectsTable subjects={pastSubjectsData} />
+      {/* 5. PASSAMOS OS DADOS DA API PARA O COMPONENTE DE TABELA */}
+      {subjects.length > 0 ? (
+        <PastSubjectsTable subjects={subjects} />
+      ) : (
+        <p className="text-center text-gray-500 py-8">
+          Ainda não há disciplinas no seu histórico.
+        </p>
+      )}
     </div>
   );
 }

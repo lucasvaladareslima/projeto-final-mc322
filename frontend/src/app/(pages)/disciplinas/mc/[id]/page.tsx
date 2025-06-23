@@ -1,16 +1,16 @@
 "use client";
 
 import Button from "@/components/Button";
+import { apiUrl } from "@/constants";
 import { Classroom, Subject } from "@/types";
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const subject: Subject = {
   code: "MC322",
   name: "Programação Orientada a Objetos",
   credits: 4,
   prerequisites: "MC202",
-  area: "Área da Matéria",
 };
 
 const classroom: Classroom = {
@@ -49,6 +49,26 @@ export default function MateriaPage() {
   const params = useParams();
   const { id } = params;
 
+  const [subject, setSubject] = useState<Subject>();
+
+  useEffect(() => {
+    async function fetchSubject() {
+      try {
+        const res = await fetch(`${apiUrl}/subject/mc/${id}`); // Exemplo de endpoint
+        if (!res.ok) {
+          console.error("Erro ao buscar disciplina");
+          return;
+        }
+        const data = await res.json();
+        setSubject(data.messages || []);
+      } catch (error) {
+        console.error("Erro ao buscar disciplina:", error);
+        return;
+      }
+    }
+    fetchSubject();
+  }, [id]);
+
   const handleForumClick = () => {
     router.push(`/disciplinas/mc/${id}/forum`);
   };
@@ -57,9 +77,17 @@ export default function MateriaPage() {
     router.push(`/disciplinas/mc/${id}/agendamentos`);
   };
 
-  const handleTarefasClick = () => {
-    router.push(`/disciplinas/mc/${id}/tarefas`);
+  const handleMateriaisClick = () => {
+    router.push(`/disciplinas/mc/${id}/materiais`);
   };
+
+  if (!subject) {
+    return (
+      <main className="text-black bg-white min-h-screen flex items-center justify-center">
+        <p>Carregando disciplina...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="text-black bg-white min-h-screen flex items-center justify-between py-12 px-4 sm:px-6 lg:px-8">
@@ -110,20 +138,20 @@ export default function MateriaPage() {
           <h3 className="text-2xl font-semibold mt-6">Recursos</h3>
           <Button onClick={handleForumClick} label="Fórum" />
           <Button onClick={handleAgendamentosClick} label="Agendamentos" />
-          <Button onClick={handleTarefasClick} label="Tarefas" />
+          <Button onClick={handleMateriaisClick} label="Materiais" />
         </div>
         <div className="w-full mt-12 flex flex-col space-y-6">
-          <h3 className="text-2xl font-semibold">Materiais</h3>
+          <h3 className="text-2xl font-semibold">Tarefas</h3>
           <ul className="flex flex-col space-y-4">
-            {classroom.materials.map((material, index) => (
+            {classroom.tasks.map((task, index) => (
               <li key={index} className="flex items-center">
                 <span className="material-icons text-sky-700">description</span>
-                <Link
-                  href={material.url}
-                  className="w-full ml-2 px-5 py-3 text-black bg-slate-200 cursor-pointer rounded-lg hover:bg-slate-300"
-                >
-                  {material.title}
-                </Link>
+                <div className="w-full ml-2 px-5 py-3 text-black bg-slate-200 cursor-pointer rounded-lg hover:bg-slate-300">
+                  <p>{task.name}</p>
+                  <p className="text-sm text-slate-500">
+                    (Vencimento: {task.dueDate})
+                  </p>
+                </div>
               </li>
             ))}
           </ul>
