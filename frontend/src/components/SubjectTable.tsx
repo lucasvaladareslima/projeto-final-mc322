@@ -25,7 +25,6 @@ const SubjectTable: React.FC<{ subjects: Subject[] }> = ({ subjects }) => {
                 <td className="py-4 px-6">{subject.code} - {subject.name}</td>
                 <td className="py-4 px-6">{subject.credits}</td>
                 <td className="py-4 px-6">{subject.prerequisites}</td>
-                <td className="py-4 px-6">{subject.area}</td>
               </tr>
             ))}
           </tbody>

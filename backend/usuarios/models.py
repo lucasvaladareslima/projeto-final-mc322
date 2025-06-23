@@ -88,7 +88,6 @@ class Usuario(AbstractUser):
         """Define os papéis (tipos) de usuários disponíveis no sistema."""
         ALUNO = "ALUNO", "Aluno"
         PROFESSOR = "PROFESSOR", "Professor"
-        MONITOR = "MONITOR", "Monitor"
 
     type = models.CharField(
         max_length=50, 
@@ -138,22 +137,4 @@ class Professor(Usuario):
     def criar_turma(self, nome_da_turma):
         """Futura implementação da lógica de criação de uma turma por um professor."""
         print(f"Professor {self.username} criando a turma {nome_da_turma}.")
-        pass
-
-
-class Monitor(Usuario):
-    """
-    Modelo Proxy para representar um usuário do tipo Monitor.
-    """
-    class Meta:
-        proxy = True
-
-    def save(self, *args, **kwargs):
-        """Sobrescreve o método save para garantir que o tipo seja sempre MONITOR."""
-        self.type = Usuario.UserType.MONITOR
-        super().save(*args, **kwargs)
-
-    def definir_horarios_disponiveis(self, horarios):
-        """Futura implementação da lógica de definição de horários de monitoria."""
-        print(f"Monitor {self.username} definindo horários.")
         pass
