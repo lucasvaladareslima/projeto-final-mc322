@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     # Nossos apps
     'rest_framework',
     'usuarios',
-    'ensino',
+    'ensino.apps.EnsinoConfig',
     'corsheaders',
 ]
 

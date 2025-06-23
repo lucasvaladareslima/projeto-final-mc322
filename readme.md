@@ -207,3 +207,156 @@ Os endpoints abaixo seguem o padrão RESTful e são gerenciados pelos `AlunoView
 ### ✅ Verificação
 
 Se tudo deu certo, o servidor iniciará sem erros. Acesse [`http://127.0.0.1:8000/`](http://127.0.0.1:8000/)
+
+
+
+# Documentação da API - Módulo de Ensino (Fórum)
+
+## Visão Geral
+
+Esta documentação descreve os endpoints disponíveis para a funcionalidade de Fórum, que é aninhada dentro das Turmas. Ela cobre a criação e visualização de posts e comentários.
+
+* **URL Base da API:** `http://localhost:8000/api/ensino/`
+* **Autenticação:** A API utiliza o mesmo sistema de **Sessões com Cookies**. Todos os endpoints do Fórum requerem que o usuário esteja autenticado.
+
+---
+
+## Referência dos Endpoints
+
+### Fórum: Posts e Comentários
+
+A API do Fórum é hierárquica. O fluxo normal é obter os posts de uma turma e, em seguida, os comentários de um post.
+
+---
+
+#### 1. Listar Posts de uma Turma
+
+* **Endpoint:** `GET /api/ensino/turma/{turma_pk}/posts/`
+* **Descrição:** Retorna uma lista de todos os posts do fórum associado a uma turma específica.
+* **Autenticação:** Requer autenticação.
+* **Parâmetros de URL:**
+
+| Parâmetro  | Tipo    | Descrição                                 |
+| :--------- | :------ | :---------------------------------------- |
+| `turma_pk` | Integer | O ID (chave primária) da Turma desejada. |
+
+* **Respostas:**
+    * **`200 OK` (Sucesso):** Retorna uma lista de objetos de Post. Cada post já inclui seus comentários aninhados.
+        ```json
+        [
+            {
+                "id": 1,
+                "titulo": "Boas-vindas à Turma!",
+                "conteudo": "Olá a todos, sejam bem-vindos ao fórum...",
+                "autor": {
+                    "public_id": "988a877b-f64c-48dc-8766-0f81328a1414",
+                    "email": "professor.teste@email.com",
+                    "name": "Professor Teste",
+                    "type": "PROFESSOR"
+                },
+                "data_criacao": "2025-06-23T21:10:00Z",
+                "tags": [],
+                "comentarios": []
+            }
+        ]
+        ```
+    * **`404 Not Found` (Erro):** Se a turma com o `turma_pk` fornecido não existir.
+
+---
+
+#### 2. Criar um Novo Post em uma Turma
+
+* **Endpoint:** `POST /api/ensino/turma/{turma_pk}/posts/`
+* **Descrição:** Cria um novo post no fórum da turma especificada. O autor do post será o usuário atualmente logado.
+* **Autenticação:** Requer autenticação. O usuário deve ser membro da turma (professor ou aluno).
+* **Parâmetros de URL:**
+
+| Parâmetro  | Tipo    | Descrição                                 |
+| :--------- | :------ | :---------------------------------------- |
+| `turma_pk` | Integer | O ID da Turma onde o post será criado. |
+
+* **Corpo do Pedido (Request Body):**
+
+| Campo      | Tipo   | Obrigatório | Descrição                        |
+| :--------- | :----- | :---------- | :------------------------------- |
+| `titulo`   | String | Sim         | O título do post.                |
+| `conteudo` | String | Sim         | O corpo de texto principal do post. |
+
+* **Exemplo de Pedido:**
+    ```json
+    {
+        "titulo": "Dúvida sobre a primeira tarefa",
+        "conteudo": "Qual é o formato de entrega do arquivo?"
+    }
+    ```
+* **Respostas:**
+    * **`201 Created` (Sucesso):** Retorna o objeto do post recém-criado.
+    * **`403 Forbidden` (Erro):** Se o usuário logado não for membro da turma.
+    * **`400 Bad Request` (Erro):** Se os dados forem inválidos (ex: título vazio).
+
+---
+
+#### 3. Listar Comentários de um Post
+
+* **Endpoint:** `GET /api/ensino/posts/{post_pk}/comentarios/`
+* **Descrição:** Retorna uma lista de todos os comentários de um post específico.
+* **Autenticação:** Requer autenticação.
+* **Parâmetros de URL:**
+
+| Parâmetro | Tipo    | Descrição                               |
+| :-------- | :------ | :-------------------------------------- |
+| `post_pk` | Integer | O ID (chave primária) do Post desejado. |
+
+* **Respostas:**
+    * **`200 OK` (Sucesso):** Retorna uma lista de objetos de Comentário.
+        ```json
+        [
+            {
+                "id": 1,
+                "conteudo": "A entrega deve ser em formato PDF, pessoal.",
+                "autor": {
+                    "public_id": "988a877b-f64c-48dc-8766-0f81328a1414",
+                    "email": "professor.teste@email.com",
+                    "name": "Professor Teste",
+                    "type": "PROFESSOR"
+                },
+                "data_criacao": "2025-06-23T21:15:00Z"
+            }
+        ]
+        ```
+
+---
+
+#### 4. Criar um Novo Comentário em um Post
+
+* **Endpoint:** `POST /api/ensino/posts/{post_pk}/comentarios/`
+* **Descrição:** Cria um novo comentário em um post específico. O autor será o usuário logado.
+* **Autenticação:** Requer autenticação. O usuário deve ser membro da turma do post.
+* **Parâmetros de URL:**
+
+| Parâmetro | Tipo    | Descrição                                 |
+| :-------- | :------ | :-------------------------------------- |
+| `post_pk` | Integer | O ID do Post onde o comentário será criado. |
+
+* **Corpo do Pedido (Request Body):**
+
+| Campo      | Tipo   | Obrigatório | Descrição                        |
+| :--------- | :----- | :---------- | :------------------------------- |
+| `conteudo` | String | Sim         | O texto do comentário.           |
+
+* **Exemplo de Pedido:**
+    ```json
+    {
+        "conteudo": "Obrigado pela resposta, professor!"
+    }
+    ```
+* **Respostas:**
+    * **`201 Created` (Sucesso):** Retorna o objeto do comentário recém-criado.
+
+---
+
+### Outros Endpoints do Fórum
+
+* `GET /api/ensino/posts/{pk}/`: Vê os detalhes de um post específico, já com seus comentários aninhados.
+* `GET /api/ensino/tags/`: Lista todas as `Tags` disponíveis no sistema.
+
