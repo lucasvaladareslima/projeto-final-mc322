@@ -1,25 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react"; // Não precisamos mais de useState e useEffect aqui
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext"; // 1. Importamos nosso hook de autenticação!
 
 const Header = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const router = useRouter();
+  // 2. Usamos o hook para pegar o estado e as funções do nosso contexto global
+  // 'isAuthenticated' nos diz se o usuário está logado ou não.
+  // 'logout' é a função global para fazer logout.
+  // 'user' contém os dados do usuário (podemos usar no futuro para mostrar o nome).
+  const { isAuthenticated, logout, user } = useAuth();
 
-  useEffect(() => {
-    const token = localStorage.getItem("user_token");
-    if (token) {
-      setIsLoggedIn(true);
-    }
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("user_token");
-    setIsLoggedIn(false);
-    router.push("/");
-  };
+  // TODA a lógica de useState e useEffect foi REMOVIDA daqui.
+  // O Header agora é um componente mais "burro", apenas exibe o que o contexto diz.
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -39,19 +32,19 @@ const Header = () => {
             Matérias
           </Link>
 
-          {/* A LÓGICA ATUALIZADA FICA AQUI */}
-          {isLoggedIn ? (
+          {/* 3. A renderização condicional agora usa 'isAuthenticated' do contexto */}
+          {isAuthenticated ? (
             // Se ESTIVER logado, mostra o ícone da conta e o botão de sair
             <div className="flex items-center gap-4">
               <Link
-                href="/conta"
+                href={user?.type === 'PROFESSOR' ? '/conta/professor' : '/conta'} // O link pode ser dinâmico!
                 title="Minha Conta"
                 className="flex items-center text-gray-600 hover:text-sky-600"
               >
                 <span className="material-icons text-4xl">account_circle</span>
               </Link>
               <button
-                onClick={handleLogout}
+                onClick={logout} // 4. O botão agora chama a função 'logout' do contexto
                 title="Sair"
                 className="flex items-center text-sm font-semibold text-gray-600 hover:text-red-600 transition-colors"
               >

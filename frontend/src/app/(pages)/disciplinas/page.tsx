@@ -1,7 +1,6 @@
 import DisciplineButton from "@/components/DisciplineButton";
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { link } from "fs";
+
 
 const disciplines = [
   { icon: 'computer', label: 'MC/MO (Computação)', link: '/disciplinas/mc' },
