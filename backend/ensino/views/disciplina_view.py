@@ -1,4 +1,5 @@
 from rest_framework import generics
+from rest_framework.permissions import AllowAny
 from ensino.models.disciplina import Disciplina
 from ensino.serializers.disciplina_serializer import DisciplinaSerializer
 
@@ -6,6 +7,7 @@ class DisciplinaListView(generics.ListAPIView):
     """View para listar disciplinas com filtros opcionais por código e nome."""
 
     serializer_class = DisciplinaSerializer
+    permission_classes = [AllowAny]  # Permite acesso a qualquer usuário, autenticado ou não.
 
     def get_queryset(self):
         """Obtém a lista de disciplinas filtradas por código e nome.    
@@ -22,7 +24,7 @@ class DisciplinaListView(generics.ListAPIView):
         nome = self.request.query_params.get('nome')
 
         if codigo:
-            queryset = queryset.filter(codigo__iexact=codigo)  
+            queryset = queryset.filter(codigo__istartswith=codigo)  # Filtro por código exato (case-insensitive)
         if nome:
             queryset = queryset.filter(nome__icontains=nome)  
 
