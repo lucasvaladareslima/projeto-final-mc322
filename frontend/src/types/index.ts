@@ -3,7 +3,6 @@ export interface Subject {
   name: string;
   credits: number;
   prerequisites: string;
-  area: string;
 }
 
 export interface Task {
@@ -63,4 +62,19 @@ export interface ForumMessage {
   author: string;
   timestamp: string;
   // replies: ForumMessage[];
+}
+
+export interface ProfessorClass {
+  id: string; // ID único da turma, para usarmos no link
+  name: string;
+  code: string;
+  classId: string; // O identificador da turma, ex: "A", "S"
+}
+
+export interface ProfessorPastClass {
+  id: string;
+  name: string;
+  code: string;
+  classId: string;
+  semester: string; // A nova informação
 }
