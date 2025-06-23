@@ -1,8 +1,74 @@
 # backend/usuarios/views.py
 
+from django.contrib.auth import authenticate, login, logout
+from rest_framework import status, viewsets
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+
 from .models import Aluno, Professor
-from .serializers import AlunoSerializer, ProfessorSerializer
+from .serializers import AlunoSerializer, ProfessorSerializer, UsuarioSerializer
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny]) # Permite que qualquer um (não logado) aceda a esta view.
+def cadastro_view(request):
+    """
+    View para o cadastro de novos usuários.
+    Qualquer um pode se cadastrar como Aluno ou Professor.
+    """
+    serializer_class = None
+    user_type = request.data.get('type')
+
+    if user_type == 'ALUNO':
+        serializer_class = AlunoSerializer
+    elif user_type == 'PROFESSOR':
+        serializer_class = ProfessorSerializer
+    else:
+        return Response(
+            {"error": "Tipo de usuário inválido. Escolha 'ALUNO' ou 'PROFESSOR'."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    serializer = serializer_class(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny]) # Permite acesso público para fazer o login.
+def login_view(request):
+    """
+    View para autenticar e iniciar uma sessão de usuário.
+    """
+    email = request.data.get('email')
+    password = request.data.get('password')
+
+    user = authenticate(request, email=email, password=password)
+
+    if user is not None:
+        login(request, user) # Cria a sessão para o usuário
+        # Retornamos os dados do usuário logado usando o serializer genérico
+        return Response(UsuarioSerializer(user).data)
+    else:
+        return Response(
+            {"error": "Credenciais inválidas."},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated]) # Só um usuário logado pode fazer logout.
+def logout_view(request):
+    """
+    Encerra a sessão do usuário atual.
+    """
+    logout(request)
+    return Response({"message": "Logout bem-sucedido."})
+
 
 class AlunoViewSet(ModelViewSet):
     """

@@ -109,6 +109,8 @@ class Usuario(AbstractUser):
             "unique": _("Já existe um usuário com este email."),
         },
     )
+
+    
     public_id = models.UUIDField(
         db_index=True,       # Cria um índice no banco de dados para buscas mais rápidas.
         unique=True,         # Garante que este campo seja único para cada usuário.
