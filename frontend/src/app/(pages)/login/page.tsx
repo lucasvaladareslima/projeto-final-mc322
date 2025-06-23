@@ -1,8 +1,36 @@
+"use client";
 import React from 'react';
 import Link from 'next/link';
 
 // Todo o código está aqui. Note o "export default" diretamente na função.
 // Não precisamos importar um componente de outro lugar.
+
+function AuthTestButtons() {
+    "use client"; // Este pequeno componente também precisa ser de cliente
+
+    const simulateLogin = () => {
+        // Salva um token falso no navegador e recarrega a página para o Header atualizar
+        localStorage.setItem('user_token', '12345fake_token');
+        window.location.reload();
+    };
+
+    const simulateLogout = () => {
+        // Remove o token falso e recarrega a página
+        localStorage.removeItem('user_token');
+        window.location.reload();
+    };
+
+    return (
+        <div className="my-8 p-4 bg-yellow-100 border border-yellow-300 rounded-lg text-center">
+            <h3 className="font-bold">Área de Teste de Autenticação</h3>
+            <p className="text-sm mb-4">Use estes botões para simular o login e logout.</p>
+            <div className="flex justify-center gap-4">
+                <button onClick={simulateLogin} className="bg-green-500 text-white px-4 py-2 rounded-lg">Simular Login</button>
+                <button onClick={simulateLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg">Simular Logout</button>
+            </div>
+        </div>
+    );
+}
 
 export default function LoginPage() {
   return (
@@ -68,6 +96,7 @@ export default function LoginPage() {
             Cadastre-se
           </Link>
         </p>
+        <AuthTestButtons />
       </div>
     </main>
   );
