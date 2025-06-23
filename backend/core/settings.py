@@ -40,12 +40,14 @@ INSTALLED_APPS = [
     # Nossos apps
     'usuarios',
     'ensino',
+    'corsheaders',
     'rest_framework',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -138,3 +140,19 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ]
 }
+
+# --- CONFIGURAÇÕES DO CORS ---
+
+# Lista de origens (endereços do frontend) que têm permissão para fazer pedidos.
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Endereço padrão para React
+    "http://localhost:8080",  # Endereço padrão para Vue.js
+    "http://localhost:4200",  # Endereço padrão para Angular
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8080",
+    "http://127.0.0.1:4200",
+]
+
+# Para o nosso sistema de login com cookies funcionar, precisamos disto.
+# Permite que o navegador envie o cookie de sessão junto com o pedido.
+CORS_ALLOW_CREDENTIALS = True
