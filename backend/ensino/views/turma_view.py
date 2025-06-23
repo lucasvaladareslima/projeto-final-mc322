@@ -28,3 +28,18 @@ class TurmaListView(generics.ListAPIView):
     """
     queryset = Turma.objects.all()
     serializer_class = TurmaSerializer
+
+
+class TurmasAlunoListView(generics.ListAPIView):
+    """View para listar turmas de um aluno específico.
+    Permite que usuários vejam as turmas associadas a um aluno.
+    Args:
+        request: Objeto de requisição HTTP que contém o ID do aluno.
+    Returns:
+        Response: Lista de turmas associadas ao aluno.
+    """
+    serializer_class = TurmaSerializer
+
+    def get_queryset(self):
+        aluno_id = self.kwargs['aluno_id']
+        return Turma.objects.filter(alunos__id=aluno_id)
