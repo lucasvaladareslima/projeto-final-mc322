@@ -7,8 +7,10 @@ utilizando um modelo de usuário customizado que herda do AbstractUser do Django
 e implementa um sistema de Proxy Models para diferenciar os papéis
 (Aluno, Professor, Monitor) sem criar tabelas adicionais no banco de dados.
 """
+import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.utils.translation import gettext_lazy as _
 
 
 class UsuarioManager(BaseUserManager):
@@ -20,7 +22,7 @@ class UsuarioManager(BaseUserManager):
     incluindo o tratamento do campo 'type' e a correta manipulação de senhas.
     """
 
-    def create_user(self, username, email, password=None, **extra_fields):
+    def create_user(self, email, password=None, **extra_fields):
         """Cria, salva e retorna um usuário padrão com email e senha.
 
         Este método normaliza o endereço de email, define a senha de forma
@@ -42,14 +44,14 @@ class UsuarioManager(BaseUserManager):
             raise ValueError('O campo de Email é obrigatório')
         
         email = self.normalize_email(email)
-        user_type = extra_fields.pop('type', Usuario.UserType.ALUNO)
-        user = self.model(username=username, email=email, type=user_type, **extra_fields)
+        #user_type = extra_fields.pop('type', Usuario.UserType.ALUNO)
+        user = self.model(email=email, **extra_fields)
         
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, email, password=None, **extra_fields):
+    def create_superuser(self, email, password=None, **extra_fields):
         """Cria e salva um superusuário com todos os privilégios.
 
         Utiliza o método create_user e define as flags 'is_staff' e 'is_superuser'
@@ -73,7 +75,7 @@ class UsuarioManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self.create_user(username, email, password, **extra_fields)
+        return self.create_user(email, password, **extra_fields)
 
 
 class Usuario(AbstractUser):
@@ -94,6 +96,29 @@ class Usuario(AbstractUser):
         choices=UserType.choices, 
         default=UserType.ALUNO
     )
+
+    #Removemos first_name,last_name,username para simplificar o modelo
+    username = None 
+    first_name = None
+    last_name = None
+
+    name = models.CharField(_("Nome Completo"), max_length=255)
+
+    email = models.EmailField(_("Endereço de email"), unique=True,
+        error_messages={
+            "unique": _("Já existe um usuário com este email."),
+        },
+    )
+    public_id = models.UUIDField(
+        db_index=True,       # Cria um índice no banco de dados para buscas mais rápidas.
+        unique=True,         # Garante que este campo seja único para cada usuário.
+        default=uuid.uuid4,  # Define um valor padrão, gerando um novo UUID.
+        editable=False       # Impede que este campo seja editado após a criação.
+    )
+
+    USERNAME_FIELD = 'email'  # Define o campo de email como o identificador único do usuário.
+    REQUIRED_FIELDS = ["name"] 
+
 
     objects = UsuarioManager()
 
@@ -116,7 +141,7 @@ class Aluno(Usuario):
 
     def inscrever_em_turma(self, turma):
         """Futura implementação da lógica de inscrição de um aluno em uma turma."""
-        print(f"Aluno {self.username} se inscrevendo na turma {turma}.")
+        print(f"Aluno {self.name} se inscrevendo na turma {turma}.")
         pass
 
 
@@ -136,5 +161,5 @@ class Professor(Usuario):
 
     def criar_turma(self, nome_da_turma):
         """Futura implementação da lógica de criação de uma turma por um professor."""
-        print(f"Professor {self.username} criando a turma {nome_da_turma}.")
+        print(f"Professor {self.name} criando a turma {nome_da_turma}.")
         pass

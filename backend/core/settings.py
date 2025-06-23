@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # Nossos apps
     'usuarios',
     'ensino',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
