@@ -1,10 +1,17 @@
-import { createContext, useState, useContext, useEffect } from "react";
-import { useRouter } from "next/router";
+"use client";
+
+import {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+} from "react";
+import { useRouter } from "next/navigation";
 import { User, AuthContextType, AuthProviderProps } from "@/types"; // Ajuste o caminho se necessário
+import { apiUrl } from "@/constants";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
@@ -12,18 +19,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const router = useRouter();
 
   // Função para buscar dados do usuário se um cookie de sessão existir
-  const checkUserLoggedIn = async () => {
+  const checkUserLoggedIn = useCallback(async () => {
     try {
       // O cookie HttpOnly é enviado automaticamente pelo navegador
-      const response = await fetch(`${API_URL}/users/me/`, {
+      const response = await fetch(`${apiUrl}/users/me/`, {
         method: "GET",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error("Usuário não autenticado");
+        router.push("/login");
       }
 
       const userData: User = await response.json();
@@ -34,17 +42,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     checkUserLoggedIn();
-  }, []);
+  }, [checkUserLoggedIn]);
 
   const login = async (username: string, password: string) => {
     try {
-      const response = await fetch(`${API_URL}/token/`, {
+      const response = await fetch(`${apiUrl}/token/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ username, password }),
       });
 
@@ -64,7 +73,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = async () => {
     try {
-      await fetch(`${API_URL}/logout/`, { method: "POST" });
+      await fetch(`${apiUrl}/logout/`, { method: "POST" });
     } catch (err) {
       console.error("Erro ao fazer logout:", err);
     } finally {

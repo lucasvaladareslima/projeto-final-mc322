@@ -3,7 +3,6 @@ export interface Subject {
   name: string;
   credits: number;
   prerequisites: string;
-  area: string;
 }
 
 export interface Task {
@@ -63,4 +62,23 @@ export interface ForumMessage {
   author: string;
   timestamp: string;
   // replies: ForumMessage[];
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  userType: "student" | "teacher" | "admin";
+}
+
+export interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  login: (username: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+export interface AuthProviderProps {
+  children: React.ReactNode;
 }
