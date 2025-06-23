@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (username: string, password: string) => {
     try {
-      const response = await fetch(`${apiUrl}/token/`, {
+      const response = await fetch(`${apiUrl}/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
