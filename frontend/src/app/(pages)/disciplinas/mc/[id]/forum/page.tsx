@@ -1,8 +1,9 @@
 "use client";
 
+import { apiUrl } from "@/constants";
 import { ForumMessage } from "@/types";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ForumPage() {
   const params = useParams();
@@ -11,6 +12,32 @@ export default function ForumPage() {
   const [content, setContent] = useState("");
   const [title, setTitle] = useState("");
   const [messages, setMessages] = useState<ForumMessage[]>([]);
+
+  useEffect(() => {
+    async function fetchMessages() {
+      try {
+        const res = await fetch(`${apiUrl}/forum/${id}`); // Exemplo de endpoint
+        if (!res.ok) {
+          console.error("Erro ao buscar mensagens do fórum");
+          return;
+        }
+        const data = await res.json();
+        for (const message of data.messages) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              ...message,
+              timestamp: new Date(message.timestamp).toISOString(),
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar mensagens do fórum:", error);
+        return;
+      }
+    }
+    fetchMessages();
+  }, [id]);
 
   const handleFormSubmit = () => {
     // console.error("IMPLEMENTAR: enviar mensagem para o banco de dados");

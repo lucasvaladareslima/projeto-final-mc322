@@ -20,11 +20,17 @@ from django.urls import path, include
 from django.http import HttpResponse
 from django.contrib import admin
 
+
 def home(request):
     return HttpResponse("Bem-vindo ao sistema!")
+
 
 urlpatterns = [
     path('', home),
     path('admin/', admin.site.urls),
+
     path('api/ensino/', include('ensino.urls')),
+
+    path('api/', include('usuarios.urls')),
 ]
+
