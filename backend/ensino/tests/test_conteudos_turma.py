@@ -90,8 +90,8 @@ class PostModelsTest(TestCase):
         self.assertEqual(anuncio.autor, self.professor)
 
     def test_polymorphic_query(self):
-        from ensino.models.conteudo_turma import Post
-        posts = Post.objects.all()
-        self.assertEqual(posts.count(), 3)  # Espera os 3 posts criados acima
-        for post in posts:
+        from ensino.models.conteudo_turma import Publicacao
+        publicacao = Publicacao.objects.all()
+        self.assertEqual(publicacao.count(), 3)  # Espera os 3 posts criados acima
+        for post in publicacao:
             print(f"Post type: {post.__class__.__name__}, title: {post.titulo}")

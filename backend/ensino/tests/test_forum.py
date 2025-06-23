@@ -1,7 +1,8 @@
 from django.test import TestCase
-from ensino.models import Disciplina, Turma, Forum, Tag, Post, Comentario
+from ensino.models import Disciplina, Turma, Forum, Tag, Post, Comentario, PeriodoLetivo
 from usuarios.models import Usuario
 from ensino.exceptions import PermissaoNegadaError, ConteudoInvalidoError
+
 
 class ForumModelsTest(TestCase):
     """
@@ -29,7 +30,7 @@ class ForumModelsTest(TestCase):
             username='monitor1',
             email='monitor1@example.com',
             password='senha123',
-            type=Usuario.UserType.MONITOR
+            type=Usuario.UserType.ALUNO
         )
         self.usuario_externo = Usuario.objects.create_user(
             username='Externo Fórum',
@@ -39,8 +40,13 @@ class ForumModelsTest(TestCase):
         )
 
         # Cria a estrutura de ensino
-        self.disciplina = Disciplina.objects.create(nome="Testes de Software")
-        self.turma = Turma.objects.create(nome="Turma de Teste", disciplina=self.disciplina, professor=self.professor)
+        self.disciplina = Disciplina.objects.create(nome="Testes de Software", codigo="TS101")
+        self.turma = Turma.objects.create(
+            nome="Turma de Teste", 
+            disciplina=self.disciplina, 
+            professor=self.professor,
+            periodo_letivo=PeriodoLetivo.objects.create(ano=2025, semestre=1)
+        )
         
         # Inscreve aluno e monitor na turma para testes de permissão
         self.turma.alunos.add(self.aluno)

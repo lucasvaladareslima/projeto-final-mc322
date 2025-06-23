@@ -42,7 +42,7 @@ class Turma(models.Model):
     monitores = models.ManyToManyField(
         Usuario, 
         blank=True, 
-        limit_choices_to={'type': Usuario.UserType.MONITOR},
+        limit_choices_to={'type': Usuario.UserType.ALUNO},
         related_name='turmasMonitores'
     )
 
@@ -75,8 +75,8 @@ class Turma(models.Model):
         
         :param monitor: Instância do usuário do tipo Monitor a ser adicionado.
         """
-        if monitor.type != Usuario.UserType.MONITOR:
-            raise ValueError("O usuário deve ser do tipo Monitor para ser adicionado à turma.")
+        if monitor.type != Usuario.UserType.ALUNO:
+            raise ValueError("O usuário deve ser do tipo Aluno para ser adicionado à turma.")
         if monitor in self.monitores.all():
             raise ValueError("O monitor já está adicionado a esta turma.")
         

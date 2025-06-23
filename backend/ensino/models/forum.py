@@ -2,8 +2,9 @@
 
 from django.db import models
 from usuarios.models import Usuario
-from .disciplina import Turma # Importamos a Turma
+from .turma import Turma # Importamos a Turma
 from ..exceptions import ConteudoInvalidoError, PermissaoNegadaError
+
 
 class Forum(models.Model):
     """

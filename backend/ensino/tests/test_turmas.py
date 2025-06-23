@@ -29,7 +29,7 @@ class TurmaModelTest(TestCase):
             username='monitor1',
             email='monitor1@example.com',
             password='senha123',
-            type=Usuario.UserType.MONITOR
+            type=Usuario.UserType.ALUNO
         )
 
         # Cria uma turma
@@ -54,8 +54,3 @@ class TurmaModelTest(TestCase):
         # Tenta inscrever um professor como aluno
         with self.assertRaises(ValueError):
             self.turma.inscreverAluno(self.professor)
-
-    def test_prevent_wrong_type_on_monitor(self):
-        # Tenta adicionar um aluno como monitor
-        with self.assertRaises(ValueError):
-            self.turma.adicionarMonitor(self.aluno)
