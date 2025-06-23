@@ -65,10 +65,10 @@ export interface ForumMessage {
 }
 
 export interface User {
-  id: string;
+  public_id: string;
   name: string;
   email: string;
-  userType: "student" | "teacher" | "admin";
+  type: string;
 }
 
 export interface AuthContextType {
