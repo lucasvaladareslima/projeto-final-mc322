@@ -62,13 +62,7 @@ class Tarefa(Publicacao):
     """
 
     data_entrega = models.DateTimeField()
-    nota = models.DecimalField(
-        max_digits=5, 
-        decimal_places=2, 
-        blank=True, 
-        null=True,
-        help_text="Nota da tarefa, se aplicável."
-    )
+    
     nota_maxima = models.DecimalField(
         max_digits=5, 
         decimal_places=2, 
@@ -107,3 +101,37 @@ class Anuncio(Publicacao):
     class Meta:
         verbose_name = 'Anúncio'
         verbose_name_plural = 'Anúncios'
+
+
+class EntregaTarefa(models.Model):
+    """
+    Modelo que representa a entrega de uma tarefa por um aluno.
+
+    Cada entrega está associada a uma tarefa específica e a um aluno.
+    """
+
+    tarefa = models.ForeignKey(Tarefa, on_delete=models.CASCADE, related_name='entregas')
+    aluno = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='entregas_tarefas')
+    conteudo = models.TextField()
+    arquivo = models.FileField(
+        upload_to='entregas_tarefas/',
+        blank=True,
+        null=True,
+        help_text="Arquivo enviado pelo aluno como entrega da tarefa."
+    )
+    data_entrega = models.DateTimeField(auto_now_add=True)
+    nota_obtida = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        blank=True, 
+        null=True,
+        help_text="Nota da entrega, se aplicável."
+    )
+
+    def __str__(self):
+        return f"Entrega de {self.aluno.username} para {self.tarefa.titulo} ({self.tarefa.turma.nome})"
+    
+    class Meta:
+        verbose_name = 'Entrega de Tarefa'
+        verbose_name_plural = 'Entregas de Tarefas'
+        unique_together = ('tarefa', 'aluno')
