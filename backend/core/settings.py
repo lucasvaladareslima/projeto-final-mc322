@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'usuarios',
     'ensino',
     'corsheaders',
-    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -166,5 +165,5 @@ CSRF_TRUSTED_ORIGINS = [
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 
-CSRF_COOKIE_SAMESITE = "None"
-SESSION_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
