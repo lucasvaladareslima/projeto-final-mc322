@@ -2,7 +2,7 @@
 
 import CurrentSubjectCard from "@/components/CurrentSubjectCard";
 import { apiUrl } from "@/constants";
-import type { CurrentSubject } from "@/types";
+import type { CurrentSubject, Subject } from "@/types";
 import { useEffect, useState } from "react";
 
 // const currentSubjects: CurrentSubject[] = [
@@ -19,13 +19,22 @@ export default function DisciplinasAtuaisPage() {
   useEffect(() => {
     async function fetchSubject() {
       try {
-        const res = await fetch(`${apiUrl}/user/current-subject`); // Exemplo de endpoint
-        if (!res.ok) {
+        const professor_id = 1;
+        const resTurma = await fetch(
+          `${apiUrl}/ensino/turma/professor/${professor_id}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          }
+        ); // Exemplo de endpoint
+        if (!resTurma.ok) {
           console.error("Erro ao buscar disciplina");
           return;
         }
-        const data = await res.json();
-        setCurrentSubjects(data.subjects || []);
+        const turmaData = await resTurma.json();
+
+        setCurrentSubjects(turmaData || []);
       } catch (error) {
         console.error("Erro ao buscar disciplina:", error);
         return;

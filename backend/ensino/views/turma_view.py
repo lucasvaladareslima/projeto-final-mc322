@@ -2,6 +2,7 @@ from rest_framework import generics
 from ensino.models.turma import Turma
 from ensino.serializers.turma_serializer import TurmaSerializer
 
+
 class TurmaCreateView(generics.CreateAPIView):
     """View para criar uma nova turma.
     Permite que usuários criem uma nova turma no sistema.
@@ -17,6 +18,7 @@ class TurmaCreateView(generics.CreateAPIView):
     """
     queryset = Turma.objects.all()
     serializer_class = TurmaSerializer
+
 
 class TurmaListView(generics.ListAPIView):
     """View para listar todas as turmas.
@@ -43,3 +45,18 @@ class TurmasAlunoListView(generics.ListAPIView):
     def get_queryset(self):
         aluno_id = self.kwargs['aluno_id']
         return Turma.objects.filter(alunos__id=aluno_id)
+
+
+class TurmasProfessorListView(generics.ListAPIView):
+    """View para listar turmas de um professor específico.
+    Permite que usuários vejam as turmas associadas a um professor.
+    Args:
+        request: Objeto de requisição HTTP que contém o ID do professor.
+    Returns:
+        Response: Lista de turmas associadas ao professor.
+    """
+    serializer_class = TurmaSerializer
+
+    def get_queryset(self):
+        professor_id = self.kwargs['professor_id']
+        return Turma.objects.filter(professor__id=professor_id)

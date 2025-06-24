@@ -14,13 +14,13 @@ import { apiUrl } from "@/constants";
 
 // Função melhorada para ler cookies com fallback
 function getCookie(name: string): string | null {
-  if (typeof document === 'undefined') return null;
-  
+  if (typeof document === "undefined") return null;
+
   try {
-    const cookies = document.cookie.split(';');
+    const cookies = document.cookie.split(";");
     for (const cookie of cookies) {
-      const [cookieName, ...rest] = cookie.trim().split('=');
-      if (cookieName === name) return decodeURIComponent(rest.join('='));
+      const [cookieName, ...rest] = cookie.trim().split("=");
+      if (cookieName === name) return decodeURIComponent(rest.join("="));
     }
     return null;
   } catch (error) {
@@ -28,7 +28,6 @@ function getCookie(name: string): string | null {
     return null;
   }
 }
-
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -48,8 +47,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         credentials: "include",
       });
 
-      console.log("Check session response:", response.status, response.statusText);
-      
+      console.log(
+        "Check session response:",
+        response.status,
+        response.statusText
+      );
+
       if (response.ok) {
         const userData = await response.json();
         console.log("User data:", userData);
@@ -69,21 +72,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     console.log("Initializing auth provider...");
     checkUserLoggedIn();
-      console.log("API URL configurada:", apiUrl);
-      console.log("URL do Check Session:", `${apiUrl}me/`);
-      console.log("URL do CSRF Token:", `${apiUrl}auth/get-csrf-token/`);
-      console.log("URL do Login:", `${apiUrl}login/`);
+    console.log("API URL configurada:", apiUrl);
+    console.log("URL do Check Session:", `${apiUrl}me/`);
+    console.log("URL do CSRF Token:", `${apiUrl}auth/get-csrf-token/`);
+    console.log("URL do Login:", `${apiUrl}login/`);
   }, [checkUserLoggedIn]);
 
   // Função para obter CSRF Token com depuração detalhada
   const fetchCsrfToken = useCallback(async (): Promise<string> => {
     console.group("Fetching CSRF Token");
-    
+
     try {
       // 1. Tentar pegar token existente
-      let token = getCookie('csrftoken');
+      let token = getCookie("csrftoken");
       console.log("Existing token from cookie:", token);
-      
+
       if (token) {
         console.groupEnd();
         return token;
@@ -91,24 +94,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       const tokenUrl = `${apiUrl}/auth/get-csrf-token/`;
       console.log("Fetching new token from:", tokenUrl);
-      
+
       const tokenResponse = await fetch(tokenUrl, {
         method: "GET",
         credentials: "include",
       });
 
       console.log("Token response status:", tokenResponse.status);
-      
+
       if (!tokenResponse.ok) {
         const errorText = await tokenResponse.text();
         console.error("Token request failed:", errorText);
-        throw new Error(`Falha na requisição: ${tokenResponse.status} - ${tokenResponse.statusText}`);
+        throw new Error(
+          `Falha na requisição: ${tokenResponse.status} - ${tokenResponse.statusText}`
+        );
       }
 
       // 3. Tentar novamente pegar o token do cookie
-      token = getCookie('csrftoken');
+      token = getCookie("csrftoken");
       console.log("Token after request (from cookie):", token);
-      
+
       // 4. Fallback: tentar extrair do corpo da resposta
       if (!token) {
         try {
@@ -126,7 +131,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         tokenResponse.headers.forEach((value, key) => {
           console.log(`${key}: ${value}`);
         });
-        
+
         throw new Error("Token CSRF não encontrado após requisição");
       }
 
@@ -158,26 +163,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
 
       console.log("Login response status:", response.status);
-      
+
       if (!response.ok) {
         // Clone a resposta para ler múltiplas vezes
         const errorClone = response.clone();
-        
+
         try {
           const errorData = await errorClone.json();
-          const errorMessage = errorData.error || errorData.detail || "Credenciais inválidas ou erro desconhecido: ";
+          const errorMessage =
+            errorData.error ||
+            errorData.detail ||
+            "Credenciais inválidas ou erro desconhecido: ";
           throw new Error(errorMessage); // Exibe apenas a mensagem do erro
         } catch {
-          const errorText = await response.text();
-          throw new Error("Credenciais inválidas ");
+          throw new Error("Credenciais inválidas ou erro desconhecido");
         }
       }
 
       console.log("Step 3: Checking user session");
       await checkUserLoggedIn();
-      
+
       console.log("Step 4: Redirecting to account page");
-      router.push('/conta');
+      router.push("/conta");
     } catch (error) {
       console.error("Login process error:", error);
       throw error;
@@ -205,13 +212,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isAuthenticated: !!user,
     loading,
     login,
-    logout
+    logout,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 
