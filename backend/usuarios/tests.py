@@ -14,7 +14,7 @@ class UsuarioModelTest(TestCase):
         """
 
         dados_professor = {
-            'username': 'prof_test',
+            'name': 'prof_test',
             'email': 'prof@test.com',
             'password': '123'
         }
@@ -25,7 +25,7 @@ class UsuarioModelTest(TestCase):
         # Assert (Verificar): Checamos se o resultado foi o esperado.
 
         # Buscamos o mesmo usuário no banco de dados, mas através do modelo base Usuario.
-        usuario_no_banco = Usuario.objects.get(username='prof_test')
+        usuario_no_banco = Usuario.objects.get(name='prof_test')
 
         # Verificamos se o tipo do usuário salvo no banco é realmente 'PROFESSOR'.
         self.assertEqual(usuario_no_banco.type, Usuario.UserType.PROFESSOR)
@@ -35,7 +35,7 @@ class UsuarioModelTest(TestCase):
         Verifica se ao criar um objeto usando o modelo Proxy 'Aluno',
         o atributo 'type' no banco de dados é salvo como ALUNO.
         """
-        aluno_criado = Aluno.objects.create_user(username='aluno_test', email='teste@gmail.com', password='123')
+        aluno_criado = Aluno.objects.create_user(name='aluno_test', email='teste@gmail.com', password='123')
         self.assertEqual(aluno_criado.type, Usuario.UserType.ALUNO)
 
         # Verifica se o tipo do usuário criado não é PROFESSOR
