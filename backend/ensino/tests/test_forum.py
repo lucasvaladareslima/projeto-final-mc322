@@ -53,7 +53,7 @@ class ForumModelsTest(TestCase):
         self.turma.monitores.add(self.monitor)
 
         # Cria o Fórum e as Tags
-        self.forum = Forum.objects.create(turma=self.turma)
+        self.forum, _ = Forum.objects.get_or_create(turma=self.turma)
         self.tag1 = Tag.objects.create(nome="Dúvida")
         self.tag2 = Tag.objects.create(nome="Projeto")
 
