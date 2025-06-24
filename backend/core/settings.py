@@ -166,5 +166,30 @@ CSRF_TRUSTED_ORIGINS = [
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 
-CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SAMESITE = 'Lax'
+# Atualize as configurações de CSRF e SESSION cookies
+CSRF_COOKIE_HTTPONLY = False  # Permite acesso via JavaScript (necessário para frontend)
+SESSION_COOKIE_HTTPONLY = True  # Mantém session cookie HTTP Only por segurança
+
+# Essas configurações são essenciais para desenvolvimento local
+CSRF_COOKIE_SAMESITE = 'Lax'  # Ou 'None' se estiver usando HTTPS entre domínios diferentes
+SESSION_COOKIE_SAMESITE = 'Lax'  # Mesmo valor do CSRF
+
+# Adicione esta configuração para expor o cookie CSRF
+CORS_EXPOSE_HEADERS = ['Set-Cookie']
+
+# Atualize a lista de cabeçalhos permitidos
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',  # Adicione este cabeçalho
+    'x-requested-with',
+]
+
+# Adicione esta configuração para cookies em ambiente de desenvolvimento
+CSRF_COOKIE_DOMAIN = 'localhost'  # Para desenvolvimento
+SESSION_COOKIE_DOMAIN = 'localhost'  # Para desenvolvimento

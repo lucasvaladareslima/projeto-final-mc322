@@ -4,7 +4,8 @@ from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 from .views import (
     AlunoViewSet, ProfessorViewSet,
-    cadastro_view, login_view, logout_view, me_view
+    cadastro_view, login_view, logout_view, me_view,
+    CSRFTokenView
 )
 
 # Cria uma instância do router padrão. O Router gera as URLs para os ViewSets.
@@ -23,6 +24,7 @@ router.register(r'professores', ProfessorViewSet, basename='professor')
 # Nossas URLs
 urlpatterns = [
     # URLs para Cadastro, Login e Logout
+    path('get-csrf-token/', CSRFTokenView.as_view(), name='get-csrf-token'),
     path('cadastro/', cadastro_view, name='cadastro'),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),

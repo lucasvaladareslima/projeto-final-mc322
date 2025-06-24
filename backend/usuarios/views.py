@@ -6,10 +6,13 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 from .models import Aluno, Professor
 from .serializers import AlunoSerializer, ProfessorSerializer, UsuarioSerializer
 
+from django.http import JsonResponse
+from django.middleware.csrf import get_token
 
 @api_view(['POST'])
 @permission_classes([AllowAny]) # Permite que qualquer um (não logado) aceda a esta view.
@@ -116,3 +119,22 @@ class ProfessorViewSet(ModelViewSet):
     queryset = Professor.objects.all()
     serializer_class = ProfessorSerializer
     lookup_field = 'public_id'
+
+
+class CSRFTokenView(APIView):
+    authentication_classes = []  # Não requer autenticação
+    permission_classes = [AllowAny]      # Sem permissões especiais
+    
+    def get(self, request):
+        token = get_token(request)
+        response = Response({"csrfToken": token})
+        response.set_cookie(
+            'csrftoken',
+            token,
+            max_age=60 * 60 * 24 * 7,  # 1 semana
+            httponly=False,
+            samesite='Lax',
+            secure=False  # True em produção com HTTPS
+        )
+    
+        return response
