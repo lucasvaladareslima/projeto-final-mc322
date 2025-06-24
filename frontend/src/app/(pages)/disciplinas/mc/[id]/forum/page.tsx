@@ -1,6 +1,7 @@
 "use client";
 
 import { apiUrl } from "@/constants";
+import { useAuth } from "@/context/AuthContext";
 import { ForumMessage } from "@/types";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,24 +14,34 @@ export default function ForumPage() {
   const [title, setTitle] = useState("");
   const [messages, setMessages] = useState<ForumMessage[]>([]);
 
+  const { user } = useAuth();
+
+  function getCookie(name: string): string | undefined {
+    if (typeof document === "undefined") return undefined;
+
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop()?.split(";").shift();
+    }
+    return undefined;
+  }
+
   useEffect(() => {
     async function fetchMessages() {
       try {
-        const res = await fetch(`${apiUrl}/forum/${id}`); // Exemplo de endpoint
+        const turma_pk = 1;
+        const res = await fetch(`${apiUrl}/ensino/turma/${turma_pk}/posts`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        }); // Exemplo de endpoint
         if (!res.ok) {
           console.error("Erro ao buscar mensagens do fórum");
           return;
         }
-        const data = await res.json();
-        for (const message of data.messages) {
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            {
-              ...message,
-              timestamp: new Date(message.timestamp).toISOString(),
-            },
-          ]);
-        }
+        const data: ForumMessage[] = await res.json();
+        setMessages(data);
       } catch (error) {
         console.error("Erro ao buscar mensagens do fórum:", error);
         return;
@@ -39,16 +50,44 @@ export default function ForumPage() {
     fetchMessages();
   }, [id]);
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
     // console.error("IMPLEMENTAR: enviar mensagem para o banco de dados");
     if (content.trim() === "") return;
     const newMessage: ForumMessage = {
-      title: title.trim() || "Mensagem sem título",
-      content,
-      timestamp: new Date().toISOString(),
-      author: "Usuário", // Aqui você pode pegar o nome do usuário logado
+      id: messages.length + 1, // Simulando um ID único
+      titulo: title.trim() || "Mensagem sem título",
+      conteudo: content,
+      data_criacao: new Date().toISOString(),
+      autor: user!, // Aqui você pode pegar o nome do usuário logado
+      tags: [],
+      comentarios: [], // Inicialmente sem comentários
     };
-    setMessages([...messages, newMessage]);
+
+    const csrftoken = getCookie("csrftoken");
+
+    if (!csrftoken) {
+      throw new Error("CSRF token not found");
+    }
+    //mandar mensagem para o banco de dados
+    const res = await fetch(`${apiUrl}/ensino/turma/1/posts/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken || "", // Adicionando o CSRF token
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        titulo: newMessage.titulo,
+        conteudo: newMessage.conteudo,
+      }),
+    });
+
+    if (!res.ok) {
+      console.error("Erro ao enviar mensagem para o fórum", res.status);
+      return;
+    }
+
+    setMessages([newMessage, ...messages]); // Adiciona a nova mensagem ao início da lista
     setContent("");
     setTitle("");
   };
@@ -72,11 +111,11 @@ export default function ForumPage() {
               key={index}
               className="flex flex-col bg-slate-200 p-4 rounded-lg"
             >
-              <h3 className="text-lg font-semibold">{message.title}</h3>
-              <p className="text-sm text-gray-700">{message.content}</p>
+              <h3 className="text-lg font-semibold">{message.titulo}</h3>
+              <p className="text-sm text-gray-700">{message.conteudo}</p>
               <p className="text-xs text-gray-500 mt-2">
-                {message.author} -{" "}
-                {new Date(message.timestamp).toLocaleString()}
+                {message.autor.name} -{" "}
+                {new Date(message.data_criacao).toLocaleString()}
               </p>
             </div>
           ))
@@ -104,7 +143,7 @@ export default function ForumPage() {
             onChange={(e) => setContent(e.target.value)}
           />
           <button
-            onClick={handleFormSubmit}
+            type="submit"
             className="material-icons outline-none focus:ring-2 ring-slate-600 rounded-full bg-sky-600 text-white p-2 ml-2 cursor-pointer"
           >
             arrow_forward

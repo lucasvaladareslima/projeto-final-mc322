@@ -7,10 +7,13 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const subject: Subject = {
-  code: "MC322",
-  name: "Programação Orientada a Objetos",
-  credits: 4,
-  prerequisites: "MC202",
+  id: 1,
+  codigo: "MC322",
+  nome: "Programação Orientada a Objetos",
+  descricao:
+    "Esta disciplina aborda os conceitos fundamentais de programação orientada a objetos, incluindo classes, objetos, herança e polimorfismo. Os alunos aprenderão a projetar e implementar sistemas utilizando esses princípios.",
+  creditos: 4,
+  // prerequisites: "MC202",
 };
 
 const classroom: Classroom = {
@@ -54,13 +57,20 @@ export default function MateriaPage() {
   useEffect(() => {
     async function fetchSubject() {
       try {
-        const res = await fetch(`${apiUrl}/subject/mc/${id}`); // Exemplo de endpoint
+        const res = await fetch(`${apiUrl}/ensino/disciplina/?codigo=MC${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }); // Exemplo de endpoint
         if (!res.ok) {
           console.error("Erro ao buscar disciplina");
           return;
         }
-        const data = await res.json();
-        setSubject(data.messages || []);
+        const data: Subject[] = await res.json();
+        console.log(data);
+        setSubject(data[0]);
       } catch (error) {
         console.error("Erro ao buscar disciplina:", error);
         return;
@@ -92,10 +102,11 @@ export default function MateriaPage() {
   return (
     <main className="text-black bg-white min-h-screen flex items-center justify-between py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-2/3 h-screen">
-        <h2 className="mt-6 text-5xl font-bold text-black">{subject.name}</h2>
-        <p className="mt-2 text-lg">Código: {subject.code}</p>
-        <p className="text-lg">Créditos: {subject.credits}</p>
-        <p className="mb-2 text-lg">Pré-requisitos: {subject.prerequisites}</p>
+        <h2 className="mt-6 text-5xl font-bold text-black">{subject.nome}</h2>
+        <h4 className="text-lg">{subject.descricao}</h4>
+        <p className="mt-2 text-lg">Código: {subject.codigo}</p>
+        <p className="text-lg">Créditos: {subject.creditos}</p>
+        {/* <p className="mb-2 text-lg">Pré-requisitos: {subject.prerequisites}</p> */}
 
         <div className="mb-8">
           <p>

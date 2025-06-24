@@ -58,10 +58,13 @@ export interface Classroom {
 }
 
 export interface ForumMessage {
-  title: string;
-  content: string;
-  author: string;
-  timestamp: string;
+  id: number;
+  titulo: string;
+  conteudo: string;
+  autor: User;
+  data_criacao: string;
+  tags: string[];
+  comentarios: ForumMessage[]; // Permite que uma mensagem tenha comentários, criando uma estrutura de árvore
   // replies: ForumMessage[];
 }
 
