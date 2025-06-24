@@ -17,6 +17,11 @@ export interface DisciplineButtonProps {
   label: string;
   href: string;
 }
+export interface PeriodoLetivo {
+  id: number;
+  ano: number;
+  semestre: number;
+}
 
 // Dentro de src/types/index.ts
 

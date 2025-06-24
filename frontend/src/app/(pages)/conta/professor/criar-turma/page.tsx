@@ -1,161 +1,219 @@
-"use client"; // Obrigatório para interatividade e uso de hooks como useState
+"use client";
 
-import React, { useState } from 'react';
+import React, { FormEvent, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { apiUrl } from '@/constants';
+// Supondo que você tenha esses tipos definidos em /types
+import type { User, Subject as Disciplina, PeriodoLetivo } from '@/types';
+
+// Função auxiliar para pegar o cookie CSRF
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  return null;
+}
 
 export default function CriarTurmaPage() {
   const router = useRouter();
+  const { user: professor } = useAuth();
 
-  // Estados para os campos do formulário
-  const [courseCode, setCourseCode] = useState('');
-  const [classId, setClassId] = useState('');
+  // --- Estados do Formulário ---
+  const [nome, setNome] = useState('');
+  const [disciplinaId, setDisciplinaId] = useState<string>('');
+  const [periodoLetivoId, setPeriodoLetivoId] = useState<string>('');
   
-  // Estado para a lista de alunos (vamos usar o e-mail como identificador)
-  const [students, setStudents] = useState<string[]>([]);
-  const [currentStudentEmail, setCurrentStudentEmail] = useState('');
+  // --- Estados para Gerenciamento de Listas ---
+  const [allDisciplinas, setAllDisciplinas] = useState<Disciplina[]>([]);
+  const [allPeriodos, setAllPeriodos] = useState<PeriodoLetivo[]>([]);
+  const [allAvailableUsers, setAllAvailableUsers] = useState<User[]>([]);
+  const [selectedStudentId, setSelectedStudentId] = useState<string>('');
+  const [selectedMonitorId, setSelectedMonitorId] = useState<string>('');
+  const [addedStudents, setAddedStudents] = useState<User[]>([]);
+  const [addedMonitors, setAddedMonitors] = useState<User[]>([]);
 
-  const [monitors, setMonitors] = useState<string[]>([]);
-  const [currentMonitorEmail, setCurrentMonitorEmail] = useState('');
+  // --- Estados de Feedback de UI ---
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [listLoading, setListLoading] = useState(true);
+
+  // --- Efeito para buscar todos os dados necessários ao carregar a página ---
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [usersRes, disciplinasRes, periodosRes] = await Promise.all([
+          fetch(`${apiUrl}/alunos/`, { credentials: 'include' }),
+          fetch(`${apiUrl}/ensino/disciplina/`, { credentials: 'include' }),
+          fetch(`${apiUrl}/ensino/periodo-letivo/`, { credentials: 'include' }),
+        ]);
+
+        if (!usersRes.ok || !disciplinasRes.ok || !periodosRes.ok) {
+          throw new Error('Não foi possível carregar os dados necessários para o formulário.');
+        }
+
+        const users = await usersRes.json();
+        const disciplinas = await disciplinasRes.json();
+        const periodos = await periodosRes.json();
+
+        setAllAvailableUsers(users);
+        setAllDisciplinas(disciplinas);
+        setAllPeriodos(periodos);
+
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setListLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // --- Funções para Adicionar/Remover Alunos e Monitores por ID ---
+  const handleAddStudent = () => {
+    if (!selectedStudentId) return;
+    const studentToAdd = allAvailableUsers.find(u => u.public_id === selectedStudentId);
+    if (studentToAdd && !addedStudents.some(s => s.public_id === studentToAdd.public_id)) {
+      setAddedStudents([...addedStudents, studentToAdd]);
+    }
+  };
+  const handleRemoveStudent = (studentId: string) => setAddedStudents(addedStudents.filter(s => s.public_id !== studentId));
 
   const handleAddMonitor = () => {
-    if (currentMonitorEmail && !monitors.includes(currentMonitorEmail)) {
-      setMonitors([...monitors, currentMonitorEmail]);
-      setCurrentMonitorEmail(''); // Limpa o campo de input
+    if (!selectedMonitorId) return;
+    const monitorToAdd = allAvailableUsers.find(u => u.public_id === selectedMonitorId);
+    if (monitorToAdd && !addedMonitors.some(m => m.public_id === monitorToAdd.public_id)) {
+      setAddedMonitors([...addedMonitors, monitorToAdd]);
     }
   };
+  const handleRemoveMonitor = (monitorId: string) => setAddedMonitors(addedMonitors.filter(m => m.public_id !== monitorId));
 
-  const handleRemoveMonitor = (emailToRemove: string) => {
-    setMonitors(monitors.filter(email => email !== emailToRemove));
-  };
 
-  // Função para adicionar um aluno à lista
-  const handleAddStudent = () => {
-    // Verifica se o input não está vazio e se o e-mail já não foi adicionado
-    if (currentStudentEmail && !students.includes(currentStudentEmail)) {
-      setStudents([...students, currentStudentEmail]);
-      setCurrentStudentEmail(''); // Limpa o campo de input
-    }
-  };
-
-  // Função para remover um aluno da lista
-  const handleRemoveStudent = (emailToRemove: string) => {
-    setStudents(students.filter(email => email !== emailToRemove));
-  };
-
-  // Função para lidar com o envio do formulário principal
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  // --- Lógica de Submissão Final ---
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const newClassData = {
-      courseCode,
-      classId,
-      students,
-      monitors,
-    };
-    console.log("Enviando para a API:", newClassData);
-    alert("Turma criada com sucesso! (Simulação)");
-    router.push('/conta/professor/minhas-turmas'); // Redireciona para a página de turmas após criar
+    setError('');
+    setIsSubmitting(true);
+
+    if (!professor || professor.type !== 'PROFESSOR') {
+      setError("Ação não permitida.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+       const newClassData = {
+  nome,
+  disciplina:     parseInt(disciplinaId, 10),       // int mesmo
+  periodo_letivo: parseInt(periodoLetivoId, 10),    // int mesmo
+  professor:      professor.public_id,               // string UUID
+  alunos:         addedStudents.map(s => s.public_id),   // [‘uuid1’, ‘uuid2’, …]
+  monitores:      addedMonitors.map(m => m.public_id),   // [‘uuid3’, …]
+};
+
+      const csrftoken = getCookie('csrftoken');
+      if (!csrftoken) throw new Error("Token CSRF não encontrado.");
+
+      const response = await fetch(`${apiUrl}/ensino/turma/cadastrar/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        credentials: 'include',
+        body: JSON.stringify(newClassData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        const errorMessage = Object.values(errorData).flat().join(' ') || 'Falha ao criar a turma.';
+        throw new Error(errorMessage);
+      }
+
+      alert("Turma criada com sucesso!");
+      router.push('/conta/professor/minhas-turmas');
+
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="container mx-auto p-4 md:p-8">
       <header className="mb-10">
         <h1 className="text-4xl font-bold text-sky-800">Criar Nova Turma</h1>
-        <p className="text-lg text-gray-600 mt-1">Preencha os detalhes da turma e adicione os alunos.</p>
+        <p className="text-lg text-gray-600 mt-1">Preencha os detalhes da turma e adicione os participantes.</p>
       </header>
 
       <div className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Seção de Detalhes da Turma */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Seção de Detalhes da Turma com Dropdowns */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="courseCode" className="block text-sm font-medium text-gray-700">Código</label>
-              <input type="text" id="courseCode" value={courseCode} onChange={(e) => setCourseCode(e.target.value)} required className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-black p-3 bg-gray-50"/>
+              <label htmlFor="nome" className="block text-sm font-medium text-gray-700">Nome da Turma (Ex: Turma A)</label>
+              <input type="text" id="nome" value={nome} onChange={(e) => setNome(e.target.value)} required disabled={isSubmitting} className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-3 bg-gray-50"/>
             </div>
             <div>
-              <label htmlFor="classId" className="block text-sm font-medium text-gray-700">Turma</label>
-              <input type="text" id="classId" value={classId} onChange={(e) => setClassId(e.target.value)} required className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-black p-3 bg-gray-50"/>
+              <label htmlFor="disciplinaId" className="block text-sm font-medium text-gray-700">Disciplina</label>
+              <select id="disciplinaId" value={disciplinaId} onChange={(e) => setDisciplinaId(e.target.value)} required disabled={isSubmitting || listLoading} className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-3 bg-gray-50">
+                <option value="">Selecione a Disciplina</option>
+                {allDisciplinas.map(d => <option key={d.id} value={d.id}>{d.codigo} - {d.nome}</option>)}
+              </select>
+            </div>
+            <div className="md:col-span-2">
+              <label htmlFor="periodoLetivoId" className="block text-sm font-medium text-gray-700">Período Letivo</label>
+              <select id="periodoLetivoId" value={periodoLetivoId} onChange={(e) => setPeriodoLetivoId(e.target.value)} required disabled={isSubmitting || listLoading} className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-3 bg-gray-50">
+                <option value="">Selecione o Período</option>
+                {allPeriodos.map(p => <option key={p.id} value={p.id}>{p.ano}/{p.semestre}</option>)}
+              </select>
             </div>
           </div>
           
-          {/* Seção de Adicionar Alunos */}
+          {/* Seções de Alunos e Monitores com Select */}
           <div className="border-t border-gray-200 pt-8">
-            <h3 className="text-lg font-semibold text-gray-800">Lista de Alunos</h3>
-            <div className="flex items-center gap-4 mt-4">
-              <input 
-                type="email" 
-                value={currentStudentEmail}
-                onChange={(e) => setCurrentStudentEmail(e.target.value)}
-                className="flex-grow rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-black p-3 bg-gray-50"
-                placeholder="E-mail do aluno"
-              />
-              <button 
-                type="button" 
-                onClick={handleAddStudent}
-                className="bg-sky-600 text-white font-semibold py-3 px-5 rounded-lg hover:bg-sky-700 transition-colors"
-              >
-                Adicionar
-              </button>
-            </div>
-
-            {/* Lista de Alunos Adicionados */}
+            <h3 className="text-lg font-semibold text-gray-800">Adicionar Alunos</h3>
+            {listLoading ? <p className="text-sm text-gray-500">Carregando listas...</p> : (
+              <div className="flex items-center gap-4 mt-4">
+                <select value={selectedStudentId} onChange={(e) => setSelectedStudentId(e.target.value)} className="flex-grow rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-3 bg-gray-50">
+                  <option value="">Selecione um aluno</option>
+                  {allAvailableUsers.map(u =>
+                    <option key={u.public_id} value={u.public_id}>
+                      {u.name} ({u.email})
+                    </option>
+                  )}
+                </select>
+                <button type="button" onClick={handleAddStudent} disabled={isSubmitting || !selectedStudentId} className="bg-sky-600 text-white font-semibold py-3 px-5 rounded-lg hover:bg-sky-700 transition-colors disabled:bg-gray-400">Adicionar</button>
+              </div>
+            )}
             <div className="mt-4 space-y-2">
-              {students.length > 0 ? (
-                students.map((email) => (
-                  <div key={email} className="flex items-center justify-between bg-sky-50 p-3 rounded-lg">
-                    <span className="text-gray-700">{email}</span>
-                    <button type="button" onClick={() => handleRemoveStudent(email)} className="text-red-500 hover:text-red-700">
-                      <span className="material-icons text-xl">delete</span>
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500 text-center py-4">Nenhum aluno adicionado ainda.</p>
-              )}
+              {addedStudents.map((student) => (
+                <div key={student.public_id} className="flex items-center justify-between bg-sky-50 p-3 rounded-lg"><span className="text-gray-700">{student.name}</span><button type="button" onClick={() => handleRemoveStudent(student.public_id)} disabled={isSubmitting} className="text-red-500 hover:text-red-700 disabled:text-gray-400"><span className="material-icons text-xl">delete</span></button></div>
+              ))}
+            </div>
+          </div>
+          <div className="border-t border-gray-200 pt-8">
+            <h3 className="text-lg font-semibold text-gray-800">Adicionar Monitores</h3>
+             {listLoading ? <p className="text-sm text-gray-500">Carregando listas...</p> : (
+              <div className="flex items-center gap-4 mt-4">
+                <select value={selectedMonitorId} onChange={(e) => setSelectedMonitorId(e.target.value)} className="flex-grow rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-3 bg-gray-50">
+                   <option value="">Selecione um monitor</option>
+                  {allAvailableUsers.map(u => <option key={u.public_id} value={u.public_id}>{u.name} ({u.email})</option>)}
+                </select>
+                <button type="button" onClick={handleAddMonitor} disabled={isSubmitting || !selectedMonitorId} className="bg-sky-600 text-white font-semibold py-3 px-5 rounded-lg hover:bg-sky-700 transition-colors disabled:bg-gray-400">Adicionar</button>
+              </div>
+            )}
+            <div className="mt-4 space-y-2">
+                {addedMonitors.map((monitor) => (
+                    <div key={monitor.public_id} className="flex items-center justify-between bg-sky-50 p-3 rounded-lg"><span className="text-gray-700">{monitor.name}</span><button type="button" onClick={() => handleRemoveMonitor(monitor.public_id)} disabled={isSubmitting} className="text-red-500 hover:text-red-700 disabled:text-gray-400"><span className="material-icons text-xl">delete</span></button></div>
+                ))}
             </div>
           </div>
 
-           {/* ====> SEÇÃO DE ADICIONAR MONITORES (NOVA) <==== */}
-  <div className="border-t border-gray-200 pt-8">
-    <h3 className="text-lg font-semibold text-gray-800">Lista de Monitores</h3>
-    <div className="flex items-center gap-4 mt-4">
-      <input 
-        type="email" 
-        value={currentMonitorEmail}
-        onChange={(e) => setCurrentMonitorEmail(e.target.value)}
-        className="flex-grow rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-black p-3 bg-gray-50"
-        placeholder="E-mail do monitor"
-      />
-      <button 
-        type="button" 
-        onClick={handleAddMonitor}
-        className="bg-sky-600 text-white font-semibold py-3 px-5 rounded-lg hover:bg-sky-700 transition-colors"
-      >
-        Adicionar
-      </button>
-    </div>
-
-    {/* Lista de Monitores Adicionados */}
-    <div className="mt-4 space-y-2">
-      {monitors.length > 0 ? (
-        monitors.map((email) => (
-          <div key={email} className="flex items-center justify-between bg-sky-50 p-3 rounded-lg">
-            <span className="text-gray-700">{email}</span>
-            <button type="button" onClick={() => handleRemoveMonitor(email)} className="text-red-500 hover:text-red-700">
-              <span className="material-icons text-xl">delete</span>
-            </button>
-          </div>
-        ))
-      ) : (
-        <p className="text-sm text-gray-500 text-center py-4">Nenhum monitor adicionado ainda.</p>
-      )}
-    </div>
-  </div>
-
-          {/* Botão de Submissão Final */}
+          {error && <div className="text-sm text-center text-red-700 bg-red-100 p-3 rounded-lg border border-red-200">{error}</div>}
           <div className="flex justify-end pt-8 border-t border-gray-200">
-            <button type="submit" className="btn btn-primary-dark flex items-center gap-2 p-4 rounded-full">
+            <button type="submit" disabled={isSubmitting} className="btn btn-primary-dark flex items-center gap-2 p-4 rounded-full disabled:bg-gray-400">
               <span className="material-icons">save</span>
-              Criar Turma
+              {isSubmitting ? 'Criando Turma...' : 'Criar Turma'}
             </button>
           </div>
         </form>
