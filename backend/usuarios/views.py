@@ -1,5 +1,4 @@
 # backend/usuarios/views.py
-
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, permission_classes
@@ -20,6 +19,17 @@ def cadastro_view(request):
     """
     View para o cadastro de novos usuários.
     Qualquer um pode se cadastrar como Aluno ou Professor.
+    Args:
+        request: Objeto de requisição HTTP que contém os dados do usuário a ser criado.
+            -type (str): Tipo de usuário ('ALUNO' ou 'PROFESSOR').
+            -name (str): Nome do usuário.
+            -email (str): Email do usuário.
+            -password (str): Senha do usuário.
+    Retorna:
+        Response: Dados do usuário criado ou erro de validação.
+        - Se o tipo for 'ALUNO', usa AlunoSerializer.
+        - Se o tipo for 'PROFESSOR', usa ProfessorSerializer.
+        - Se o tipo for inválido, retorna um erro 400.
     """
     serializer_class = None
     user_type = request.data.get('type')
@@ -46,6 +56,12 @@ def cadastro_view(request):
 def login_view(request):
     """
     View para autenticar e iniciar uma sessão de usuário.
+    Args:
+        request: Objeto de requisição HTTP que contém os dados de login que contém:
+            - email (str): Email do usuário.
+            - password (str): Senha do usuário.
+    Retorna:
+        Response: Dados do usuário autenticado ou erro de autenticação.
     """
     email = request.data.get('email')
     password = request.data.get('password')
@@ -69,6 +85,11 @@ def login_view(request):
 def me_view(request):
     """
     Retorna os dados do usuário atualmente autenticado.
+    Esta view é acessível apenas para usuários logados.
+    Args:
+        request: Objeto de requisição HTTP que contém o usuário logado.
+    Retorna:
+        Response: Dados do usuário logado.
     """
     # O Django e o DRF, ao verem o cookie de sessão, já preencheram
     # o 'request.user' com o objeto do usuário logado.
@@ -82,6 +103,11 @@ def me_view(request):
 def logout_view(request):
     """
     Encerra a sessão do usuário atual.
+    Esta view é acessível apenas para usuários logados.
+    Args:
+        request: Objeto de requisição HTTP que contém o usuário logado.
+    Retorna:
+        Response: Mensagem de sucesso ou erro.
     """
     logout(request)
     return Response({"message": "Logout bem-sucedido."})

@@ -36,6 +36,14 @@ class PostViewSet(viewsets.ModelViewSet):
           do fórum daquela turma.
         - Se a URL for de alto nível (`/posts/{id}/`), retorna todos os posts
           para permitir as ações de detalhe, atualização e exclusão.
+
+        Args:
+        request: Objeto de requisição HTTP que contém os parâmetros da URL. que contém:
+        -  turmas_pk (int): ID da turma para filtrar os posts.
+        Returns:
+            QuerySet: Lista de posts filtrados ou todos os posts.
+        Raises:
+            Http404: Se a turma especificada não existir.
         """
 
         turma_pk = self.kwargs.get('turma_pk')
@@ -47,6 +55,13 @@ class PostViewSet(viewsets.ModelViewSet):
         """
         Sobrescreve o método de criação para associar o novo post
         automaticamente ao fórum da turma (da URL) e ao autor (usuário logado).
+        Args:
+            request: Objeto de requisição HTTP que contém os dados do post a ser criado.
+        Returns:
+            Response: Resposta HTTP com o post criado ou erro de validação.
+        Raises:
+            ValidationError: Se os dados do post não forem válidos.
+            Http404: Se a turma especificada não existir.
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -69,6 +84,7 @@ class ComentarioViewSet(viewsets.ModelViewSet):
     """
     ViewSet para gerenciar Comentários de um Post.
     Projetado para ser usado aninhado sob um post específico.
+    
     """
     serializer_class = ComentarioSerializer
     permission_classes = [IsAuthenticated]
@@ -77,6 +93,13 @@ class ComentarioViewSet(viewsets.ModelViewSet):
         """
         Filtra os comentários para retornar apenas aqueles do post
         especificado pelo `post_pk` na URL.
+        Args:
+            request: Objeto de requisição HTTP que contém:
+            - post_pk (int): ID do post para filtrar os comentários.
+        Returns:
+            QuerySet: Lista de comentários filtrados ou todos os comentários.
+        Raises:
+            Http404: Se o post especificado não existir.    
         """
         post_pk = self.kwargs.get('post_pk')
         if post_pk:
@@ -86,6 +109,14 @@ class ComentarioViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         """
         Cria um novo comentário e o associa ao post da URL e ao autor logado.
+        Args:
+            request: Objeto de requisição HTTP que contém:
+            - post_pk (int): ID do post para associar o comentário.
+            - conteudo (str): Conteúdo do comentário a ser criado.
+        Returns:
+            Response: Resposta HTTP com o comentário criado ou erro de validação.
+        Raises:
+            ValidationError: Se os dados do comentário não forem válidos.
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
